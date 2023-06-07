@@ -12,7 +12,8 @@ const fs = require('fs/promises');
 const { randomUUID } = require('crypto');
 const userschema1 = require('./moduls/userModul');
 const teacherModul = require("./moduls/teacherModul")
-const cursModul = require("./moduls/cursModul")
+const cursModul = require("./moduls/cursModul");
+const IsTeacherIn = require('./is/isTeacherin');
 // GET so'rovi
 router.use(express.json())
 
@@ -87,8 +88,8 @@ router.post('/teacher/register', async (req, res) => {
 
       let filename = randomUUID()
       let qoshimcha = file.name.split(".").at(-1)
-      const filePath = path.join(__dirname, "/teacherPhoto", `${filename}.${qoshimcha}`);
-      await file.mv(filePath);
+      const filePath = path.join("/teacherPhoto", `${filename}.${qoshimcha}`);
+      await file.mv(path.join(__dirname + "/" + filePath));
 
       const teacher = new Teacher({
         path: filePath,
@@ -116,25 +117,30 @@ router.post('/teacher/register', async (req, res) => {
   }
 });
 
-router.put('/teacher/:id', async (req, res) => {
+router.put('/teacher/', IsTeacherIn, async (req, res) => {
   const { id } = req.params;
-  const { username, fullname, email, type, price } = req.body;
+  const { bio, mutahasislik, joylashuv, username, fullname, email, boglashlink} = req.body;
   const { file } = req.files;
-  let a = path.join(__dirname, "/teacherPhoto", `${req.body.username}.png`);
-  await file.mv(path.join(__dirname, "/teacherPhoto", `${req.body.username}.png`), (err) => {
-    if (err) {
-      console.log(err);
-    }
-  });
-
+  const oldteacher = await Teacher.findById(req.teacher.teacherId);
+  const existingTeacher = await Teacher.findOne({ username: username });
+  if (existingTeacher) {
+    return res.send("bu nomdagi foydalanuvchi mavjud");
+  }
+  await file.mv(path.join(__dirname+"/"+oldteacher.path));
   try {
     const teacher = await Teacher.findByIdAndUpdate(id, {
+      
+      path: oldteacher.path,
       username,
-      path: a,
+      hisob: oldteacher.hisob,
       fullname,
       email,
-      type,
-      price,
+      bio,
+      obunachilar: oldteacher.obunachilar,
+      mekurs: oldteacher.mekurs,
+      joylashuv,
+      mutahasislik,
+      boglashlink
     }, { new: true });
     res.send(teacher);
   } catch (error) {

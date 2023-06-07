@@ -74,6 +74,9 @@ router.post('/courses', IsTeacherIn, async (req, res, next) => {
         return res.send("bunday kursni avval qushgansiz")
     }
     else {
+        if(!req.files.obloshka){
+            return res.send("obloshkani kirit")
+        }
         let { obloshka } = req.files
         const folder = path.join(__dirname, 'courses', req.teacher.teacherId, name)
         let obqoshimcha = obloshka.name.split(".").at(-1)
@@ -83,13 +86,13 @@ router.post('/courses', IsTeacherIn, async (req, res, next) => {
         for (let i = 0; i < req.files.file.length; i++) {
             let file = req.files.file[i];
             let qoshimcha = file.name.split(".").at(-1)
-
-            const location = path.join(folder, `${randomUUID()}.${qoshimcha}`)
+            let vediosRand=randomUUID()
+            const location = path.join(folder, `${vediosRand}.${qoshimcha}`)
             console.log(location)
             vedios.push({
                 nomi: vediosname[i],
                 desc: vediosdesc[i],
-                orni: location
+                orni: path.join("courses/"+req.teacher.teacherId+"/"+name+"/"+`${vediosRand}.${qoshimcha}`),
 
             })
             await fs.mkdir(folder, { recursive: true })
@@ -99,7 +102,7 @@ router.post('/courses', IsTeacherIn, async (req, res, next) => {
         try {
             const curs = new Curs({
                 Kursname: name,
-                obloshka: location,
+                obloshka: path.join("courses/"+req.teacher.teacherId+"/"+name+"/"+`obloshka.${obqoshimcha}`),
                 teacher_Id: req.teacher.teacherId,
                 Kursdesc: desc,
                 narxi: narxi,

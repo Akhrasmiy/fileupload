@@ -92,7 +92,7 @@ router.post('/users/register', async (req, res, next) => {
   }
   
   let qoshimcha = file.name.split(".").at(-1)
-  let a = path.join(__dirname, "/uploads", `${filename}.${qoshimcha}`)
+  let a = path.join( "/uploads", `${filename}.${qoshimcha}`)
   await file.mv(path.join(__dirname, "/uploads", `${filename}.${qoshimcha}`), (err) => {
     if (err) {
       console.log(err);
