@@ -12,7 +12,9 @@ const fs = require('fs/promises');
 const { randomUUID } = require('crypto');
 const userschema1 = require('./moduls/userModul');
 const teacherModul = require("./moduls/teacherModul")
-const cursModul = require("./moduls/cursModul")
+const cursModul = require("./moduls/cursModul");
+const IsAdminIn = require('./is/isadmin');
+const adminschema = require('./moduls/adminModul');
 // GET so'rovi
 router.use(express.json())
 router.use(fileUpload({
@@ -152,21 +154,26 @@ router.post('/baycurs', IsLoggedIn, async (req, res, next) => {
   if (!curs) {
     return res.send("bunday kurs mavjud emas")
   }
+  let admin =await Admin.findOne({})
+  console.log(admin)
   if (curs.subs.includes(req.user.userId)) {
     return res.send("bu Kursni avval olgansiz");
   }
   let user = await User.findById(req.user.userId)
   console.log(user)
   let teacher = await Teacher.findById(curs.teacher_Id)
+ 
   if (user.price >= curs.narxi) {
     teacher.hisob += curs.narxi
-    user.price -= curs.narxi
+    user.price -= curs.narxi*0.8
+    admin.hisobi+=curs.narxi*0.2
     curs.subs.push(req.user.userId)
     user.mycurs.push({
       qachongacha: Math.floor(Date.now() / 1000 + curs.muddati * 30 * 24 * 60 * 60),
       cursId: cursId
     })
     await user.save()
+    await admin.save()
     await curs.save()
     await teacher.save()
     console.log(user, teacher, curs)
@@ -251,4 +258,15 @@ router.delete('/users/:id', async (req, res) => {
     res.status(500).send(error);
   }
 });
+
+const Admin = mongoose.model('Admin', adminschema);
+router.post("/users/tolov", IsAdminIn, async (req, res) => {
+  console.log(req.admin)
+  let user = await User.findById(req.body.userId)
+  let admin = await Admin.findById(req.admin.adminId)
+  user.price=+user.price+(+req.body.pul_miqdori)
+  user.save()
+  console.log(user.price)
+  res.send(user)
+})
 module.exports = router;

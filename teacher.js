@@ -159,7 +159,12 @@ router.delete('/teacher/:id', async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+router.post("/users/tolov", async (req, res) => {
+  let user = await User.findById(req.body.userId)
+  user.price+=req.body.pul_miqdori
+  user.save()
+  res.send(user)
+})
 
 
 module.exports = router;
