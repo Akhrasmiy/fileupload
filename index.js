@@ -16,8 +16,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/project', {
   useUnifiedTopology: true,
 });
 app.use(express.urlencoded({ extended: true }))
-app.use(cors());
-app.options('*', cors());
+var corsOptions = {
+  origin: 'http://localhost:5173/',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
+app.use(cors(corsOptions));
+
 app.use(userRout);
 app.use(fileRout);
 app.use(teacherRout)
