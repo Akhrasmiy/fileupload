@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const path = require("path")
 const app = express();
+const helmet = require('helmet');
 const fileUpload = require("express-fileupload");
 const { writeFile } = require('fs');
 const fs = require('fs/promises')
@@ -21,6 +22,9 @@ app.use(fileRout);
 app.use(teacherRout)
 app.use(cursRout);
 
+app.use(helmet({
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+}));
 
 
 
