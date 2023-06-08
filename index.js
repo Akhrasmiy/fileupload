@@ -25,9 +25,6 @@ app.use(fileRout);
 app.use(teacherRout)
 app.use(cursRout);
 
-app.use(helmet({
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
-}));
 
 
 
