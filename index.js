@@ -9,12 +9,13 @@ const userRout = require("./users")
 const cursRout = require("./courssRoutes")
 const teacherRout =require('./teacher')
 const fileRout=require('./file')
+const cors=require('cors')
 mongoose.connect('mongodb://127.0.0.1:27017/project', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 app.use(express.urlencoded({ extended: true }))
-
+app.use(cors())
 app.use(userRout);
 app.use(fileRout);
 app.use(teacherRout)
