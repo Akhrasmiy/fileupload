@@ -208,12 +208,15 @@ router.post("/users/obuna", IsLoggedIn, async (req, res) => {
   }
   if (teacher.obunachilar.includes(req.body.teacher_Id)) {
     teacher.obunachilar.splice(teacher.obunachilar.indexOf(req.body.teacher_Id),1)
+    user.teachers.splice(user.teachers.indexOf(req.body.teacher_Id),1)
   }
   else {
     teacher.obunachilar.push(req.body.teacher_Id)
+    user.teachers.push(req.body.teacher_Id)
   }
+  user.save()
   teacher.save()
-  res.send(teacher.obunachilar)
+  res.send(user.teachers)
 })
 router.get('/usersinfo/:id', async (req, res) =>{
   const user=await User.findById(req.params.id).select('fullname path')

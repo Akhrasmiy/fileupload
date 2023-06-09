@@ -29,6 +29,7 @@ const userschema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  teachers:Array,
   mycurs: [{
     cursId: String,
     qachongacha: BigInt,
