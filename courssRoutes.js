@@ -49,6 +49,7 @@ router.get('/courses/:id', IsLoggedIn, async (req, res, next) => {
         }
         else {
             res.send({
+                teaherId:curs.teacher_Id,
                 Kursname: curs.Kursname,
                 Kursdesc: curs.Kursdesc,
                 subs: curs.subs.length,
