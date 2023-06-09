@@ -24,11 +24,11 @@ router.get('/courses/:teacherId/:cursId/:fileUrl', async (req, res) => {
 });
 router.get("/teacherPhoto/:teacherId", async (req, res) => {
   const { teacherId } = req.params
-  res.send(path.join(__dirname + "/teacherPhoto/" + teacherId))
+  res.sendFile(path.join(__dirname + "/teacherPhoto/" + teacherId))
 })
 router.get("/uploads/:userId", async (req, res) => {
   const { userId } = req.params
-  res.send(path.join(__dirname + "/uploads/" + userId))
+  res.sendFile(path.join(__dirname + "/uploads/" + userId))
 })
 router.post('/admin/register', async (req, res, next) => {
   const { username, password } = req.body

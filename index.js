@@ -18,7 +18,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/project', {
 app.use(express.urlencoded({ extended: true }))
 
 
-app.use(cors({ origin: "*" }))
+app.use(cors())
 
 app.use(userRout);
 app.use(fileRout);
@@ -30,4 +30,4 @@ app.use(cursRout);
 
 
 
-app.listen(5000, () => console.log('Server is running on port 5000'));
+app.listen(5001, () => console.log('Server is running on port 5000'));
