@@ -26,7 +26,7 @@ const userschema = new mongoose.Schema({
 
   },
   price: {
-    type: Number,
+    type: BigInt,
     required: true
   },
   teachers:Array,
