@@ -47,7 +47,7 @@ router.get('/users/:id', async (req, res) => {
     res.status(500).send("Server xatosi: " + error);
   }
 });
-router.get("/usersme", IsLoggedIn, async (req, res, next) => {
+router.post("/usersme", IsLoggedIn, async (req, res, next) => {
   const user = await User.findById(req.user.userId)
   res.send(user)
   next()
