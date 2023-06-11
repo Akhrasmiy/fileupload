@@ -26,13 +26,13 @@ const userschema = new mongoose.Schema({
 
   },
   price: {
-    type: BigInt,
+    type: Number,
     required: true
   },
   teachers:Array,
   mycurs: [{
     cursId: String,
-    qachongacha: BigInt,
+    qachongacha: Number,
     olinganVaqt: Number,
   }],
   savecurss: Array
