@@ -148,7 +148,8 @@ router.put('/users/', IsLoggedIn, async (req, res, next) => {
   }
 });
 router.post('/baycurs', IsLoggedIn, async (req, res, next) => {
-  const { cursId } = req.body
+  try {
+    const { cursId } = req.body
   let curs = await Curs.findById(cursId)
   if (!curs) {
     return res.send("bunday kurs mavjud emas")
@@ -183,6 +184,10 @@ router.post('/baycurs', IsLoggedIn, async (req, res, next) => {
   }
 
   next()
+  } catch (error) {
+    res.send(error)
+  }
+  
 })
 router.post("/users/savecurs", IsLoggedIn, async (req, res) => {
   let user = await User.findById(req.user.userId)
