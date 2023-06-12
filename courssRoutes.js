@@ -127,21 +127,26 @@ router.post('/courses', IsTeacherIn, async (req, res, next) => {
 
 })
 router.post('/courses/commint', IsLoggedIn, async (req, res, next) => {
-    const { cursId } = req.body
-    const curs = await Curs.findById(cursId);
-    console.log("b")
-    if (curs.subs.includes(req.user.userId)) {
-        curs.Comments.push({
-            userid: req.user.userId,
-            text: req.body.text
-        })
-        curs.save()
-        res.send(curs)
-        next()
+    try {
+        const { cursId } = req.body
+        const curs = await Curs.findById(cursId);
+        console.log("b")
+        if (curs.subs.includes(req.user.userId)) {
+            curs.Comments.push({
+                userid: req.user.userId,
+                text: req.body.text
+            })
+            curs.save()
+            res.send(curs)
+            next()
+        }
+        else {
+            res.send("bu kursni sotib olmagansiz")
+        }  
+    } catch (error) {
+        res.send(error)
     }
-    else {
-        res.send("bu kursni sotib olmagansiz")
-    }
+    
 })
 router.put('/courses/:id', IsTeacherIn, async (req, res, next) => {
     const { name, vediosname, vediosdesc, desc, narxi, muddati } = req.body
