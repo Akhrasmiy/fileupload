@@ -62,7 +62,7 @@ router.post("/teacher/login", async (req, res, next) => {
 });
 router.get('/teacherinfo/:id', async (req, res) => {
   try {
-    const teacher = await Teacher.findById(req.params.id).select('fullname path mutahasislik boglashlink obunachilar');
+    const teacher = await Teacher.findById(req.params.id).select('fullname mekurs path mutahasislik boglashlink obunachilar');
     if (!teacher) {
       return res.status(404).send('O\'qituvchi topilmadi');
     }
