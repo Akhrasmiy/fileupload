@@ -72,7 +72,30 @@ router.get('/teacherinfo/:id', async (req, res) => {
     res.status(500).send("Server xatosi: " + error);
   }
 });
-
+router.get('/teacherme',IsTeacherIn, async (req, res) => {
+  try {
+    const teacher = await Teacher.findById(req.teacher.teacherId);
+    if (!teacher) {
+      return res.status(404).send('O\'qituvchi topilmadi');
+    }
+    teacher.obunachilar = teacher.obunachilar.length
+    res.send(teacher);
+  } catch (error) {
+    res.status(500).send("Server xatosi: " + error);
+  }
+});
+router.get('/teacher-mycurs',IsTeacherIn,async(req,res)=>{
+  try {
+    const teacher = await Teacher.findById(req.teacher.teacherId).select("_id")
+    if (!teacher) {
+      return res.status(404).send('O\'qituvchi topilmadi');
+    }
+    const curs=await Curs.find({teacher_Id:teacher.id})
+    res.send(curs);
+  } catch (error) {
+    res.status(500).send("Server xatosi: " + error);
+  }
+})
 router.post('/teacher/register', async (req, res) => {
   try {
     const existingTeacher = await Teacher.findOne({ username: req.body.username });
@@ -118,7 +141,6 @@ router.post('/teacher/register', async (req, res) => {
 });
 
 router.put('/teacher/', IsTeacherIn, async (req, res) => {
-  const { id } = req.params;
   const { bio, mutahasislik, joylashuv, username, fullname, email, boglashlink} = req.body;
   const { file } = req.files;
   const oldteacher = await Teacher.findById(req.teacher.teacherId);
@@ -159,12 +181,7 @@ router.delete('/teacher/:id', async (req, res) => {
     res.status(500).send(error);
   }
 });
-router.post("/users/tolov", async (req, res) => {
-  let user = await User.findById(req.body.userId)
-  user.price+=req.body.pul_miqdori
-  user.save()
-  res.send(user)
-})
+
 
 
 module.exports = router;
