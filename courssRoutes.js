@@ -64,6 +64,22 @@ router.get('/courses/:id', IsLoggedIn, async (req, res, next) => {
         next(error);
     }
 });
+router.post("/courseone/me",IsTeacherIn,async(req,res)=>{
+    try {
+        const curs = await Curs.findById(req.body.cursId);
+        if (!curs) {
+            return res.status(401).send('Kurs topilmadi');
+        }
+        if(curs.teacher_Id==req.teacher.teacherId){
+            res.send(curs)
+        }
+        else {
+            res.send("bunaqa kurs qushmagansiz");
+        }
+    } catch (error) {
+        res.send(error);
+    }
+})
 
 router.post('/courses', IsTeacherIn, async (req, res, next) => {
     console.log(req.teacher.teacherId)
