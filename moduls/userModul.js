@@ -21,12 +21,11 @@ const userschema = new mongoose.Schema({
     required: true
   },
   password: {
-    type: String,
+    type: String,   
     // required:true
-
   },
   price: {
-    type: String,
+    type: Number,
     required: true
   },
   teachers:Array,
