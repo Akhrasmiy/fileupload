@@ -164,9 +164,9 @@ router.post('/baycurs', IsLoggedIn, async (req, res, next) => {
     let teacher = await Teacher.findById(curs.teacher_Id)
 
     if (user.price >= curs.narxi) {
-      user.price -= Number(curs.narxi) ;
-      teacher.hisob += Number(curs.narxi)* 0.8;
-      admin.hisobi += Number(curs.narxi) * 0.2
+      user.price = Number(user.price)- Number(curs.narxi) ;
+      teacher.hisob =Number(teacher.hisob)+ Number(curs.narxi)* 0.8;
+      admin.hisobi =Number(admin.hisobi)+ Number(curs.narxi) * 0.2
       curs.subs.push(req.user.userId)
       user.mycurs.push({
         qachongacha: Math.floor(Date.now() / 1000 + curs.muddati * 30 * 24 * 60 * 60),
