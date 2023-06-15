@@ -81,19 +81,19 @@ router.post("/users/login", async (req, res, next) => {
 router.post('/users/register', async (req, res, next) => {
   console.log(req.body)
   let filename = randomUUID()
-  if(!req.files){
+  if (!req.files) {
     return res.send("path maydon bosh bolishi mumkin emas")
   }
-  const {file}=req.files
-  
+  const { file } = req.files
+
   const hashpass = await bcrypt.hash(req.body.password, 10)
   const student = await User.findOne({ username: req.body.username });
   if (student) {
     return res.send("bunday nomli foydalanuvchi bor")
   }
-  
+
   let qoshimcha = file.name.split(".").at(-1)
-  let a = path.join( "/uploads", `${filename}.${qoshimcha}`)
+  let a = path.join("/uploads", `${filename}.${qoshimcha}`)
   await file.mv(path.join(__dirname, "/uploads", `${filename}.${qoshimcha}`), (err) => {
     if (err) {
       console.log(err);
@@ -150,54 +150,54 @@ router.put('/users/', IsLoggedIn, async (req, res, next) => {
 router.post('/baycurs', IsLoggedIn, async (req, res, next) => {
   try {
     const { cursId } = req.body
-  let curs = await Curs.findById(cursId)
-  if (!curs) {
-    return res.send("bunday kurs mavjud emas")
-  }
-  let admin =await Admin.findOne({})
-  console.log(admin)
-  if (curs.subs.includes(req.user.userId)) {
-    return res.send("bu Kursni avval olgansiz");
-  }
-  let user = await User.findById(req.user.userId)
-  console.log(user)
-  let teacher = await Teacher.findById(curs.teacher_Id)
- 
-  if (user.price >= curs.narxi) {
-    (teacher.hisob) += curs.narxi;
-    (user.price) -= curs.narxi*0.8;
-    (admin.hisobi)+=curs.narxi*0.2
-    curs.subs.push(req.user.userId)
-    user.mycurs.push({
-      qachongacha: Math.floor(Date.now() / 1000 + curs.muddati * 30 * 24 * 60 * 60),
-      cursId: cursId
-    })
-    await user.save()
-    await admin.save()
-    await curs.save()
-    await teacher.save()
-    console.log(user, teacher, curs)
-    res.send("muvaffaqqiyatli")
-  }
-  else {
-    res.send("hisobingizni toldiring")
-  }
+    let curs = await Curs.findById(cursId)
+    if (!curs) {
+      return res.send("bunday kurs mavjud emas")
+    }
+    let admin = await Admin.findOne({})
+    console.log(admin)
+    if (curs.subs.includes(req.user.userId)) {
+      return res.send("bu Kursni avval olgansiz");
+    }
+    let user = await User.findById(req.user.userId)
+    console.log(user)
+    let teacher = await Teacher.findById(curs.teacher_Id)
 
-  next()
+    if (user.price >= curs.narxi) {
+      (teacher.hisob) += curs.narxi;
+      (user.price) -= curs.narxi * 0.8;
+      (admin.hisobi) += curs.narxi * 0.2
+      curs.subs.push(req.user.userId)
+      user.mycurs.push({
+        qachongacha: Math.floor(Date.now() / 1000 + curs.muddati * 30 * 24 * 60 * 60),
+        cursId: cursId
+      })
+      await user.save()
+      await admin.save()
+      await curs.save()
+      await teacher.save()
+      console.log(user, teacher, curs)
+      res.send("muvaffaqqiyatli")
+    }
+    else {
+      res.send("hisobingizni toldiring")
+    }
+
+    next()
   } catch (error) {
     res.send(error)
   }
-  
+
 })
 router.post("/users/savecurs", IsLoggedIn, async (req, res) => {
   let user = await User.findById(req.user.userId)
-  const curs=await Curs.findById(req.body.cursId)
-  
-  if(!curs){
+  const curs = await Curs.findById(req.body.cursId)
+
+  if (!curs) {
     return res.send("bunday kurs mavjud emas")
   }
   if (user.savecurss.includes(req.body.cursId)) {
-    user.savecurss.splice(user.savecurss.indexOf(req.body.cursId),1)
+    user.savecurss.splice(user.savecurss.indexOf(req.body.cursId), 1)
   }
   else {
     user.savecurss.push(req.body.cursId)
@@ -207,13 +207,13 @@ router.post("/users/savecurs", IsLoggedIn, async (req, res) => {
 })
 router.post("/users/obuna", IsLoggedIn, async (req, res) => {
   let user = await User.findById(req.user.userId)
-  const teacher=await Teacher.findById(req.body.teacher_Id)
-  if(!teacher){
+  const teacher = await Teacher.findById(req.body.teacher_Id)
+  if (!teacher) {
     return res.send("bunday teacher mavjud emas")
   }
   if (teacher.obunachilar.includes(req.body.teacher_Id)) {
-    teacher.obunachilar.splice(teacher.obunachilar.indexOf(req.body.teacher_Id),1)
-    user.teachers.splice(user.teachers.indexOf(req.body.teacher_Id),1)
+    teacher.obunachilar.splice(teacher.obunachilar.indexOf(req.body.teacher_Id), 1)
+    user.teachers.splice(user.teachers.indexOf(req.body.teacher_Id), 1)
   }
   else {
     teacher.obunachilar.push(req.body.teacher_Id)
@@ -223,8 +223,8 @@ router.post("/users/obuna", IsLoggedIn, async (req, res) => {
   teacher.save()
   res.send(user.teachers)
 })
-router.get('/usersinfo/:id', async (req, res) =>{
-  const user=await User.findById(req.params.id).select('fullname path')
+router.get('/usersinfo/:id', async (req, res) => {
+  const user = await User.findById(req.params.id).select('fullname path')
   console.log(user)
   res.send(user)
 })
