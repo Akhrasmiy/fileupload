@@ -271,7 +271,7 @@ router.post("/users/tolov", IsAdminIn, async (req, res) => {
   console.log(req.admin)
   let user = await User.findById(req.body.userId);
   console.log(user.price)
-  Number(user.price)=Number(user.price)+Number(req.body.pul_miqdori)
+  user.price = Number(user.price) + Number(req.body.pul_miqdori)
   user.save()
   res.send(user)
 })
