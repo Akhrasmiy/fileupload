@@ -21,7 +21,7 @@ const User = mongoose.model('User', userschema);
 const Teacher = mongoose.model('Teacher', teacherschema);
 const Curs = mongoose.model('Curs', cursschema);
 router.get('/courses', async (req, res, next) => {
-    const data = await Curs.find().select('Kursname teacher_Id Kursdesc obloshka').limit(10)
+    const data = await Curs.find().select('Kursname narxi teacher_Id Kursdesc obloshka').limit(10)
     res.send(data)
 })
 router.get('/courses/:id', IsLoggedIn, async (req, res, next) => {
