@@ -25,7 +25,7 @@ const teacherschema = new mongoose.Schema({
       required: true,
     },
     hisob: {
-      type: String,
+      type: Number,
       required: true
     },
     mekurs: [String],

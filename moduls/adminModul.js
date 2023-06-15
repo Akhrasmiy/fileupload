@@ -5,7 +5,7 @@ const adminschema = new mongoose.Schema({
         required: true
     },
     hisobi: {
-        type: String,
+        type: Number,
         required: true
     },
     username: {
