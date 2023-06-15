@@ -71,7 +71,7 @@ router.post("/courseone/me",IsTeacherIn,async(req,res)=>{
             return res.status(401).send('Kurs topilmadi');
         }
         if(curs.teacher_Id==req.teacher.teacherId){
-            res.send(curs)
+            res.send("curs")
         }
         else {
             res.send("bunaqa kurs qushmagansiz");
