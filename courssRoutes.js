@@ -64,13 +64,13 @@ router.get('/courses/:id', IsLoggedIn, async (req, res, next) => {
         next(error);
     }
 });
-router.post("/courseone/me",IsTeacherIn,async(req,res)=>{
+router.post("/courseone/me", IsTeacherIn, async (req, res) => {
     try {
         const curs = await Curs.findById(req.body.cursId);
         if (!curs) {
             return res.status(401).send('Kurs topilmadi');
         }
-        if(curs.teacher_Id==req.teacher.teacherId){
+        if (curs.teacher_Id == req.teacher.teacherId) {
             res.send(curs)
         }
         else {
@@ -84,67 +84,67 @@ router.post("/courseone/me",IsTeacherIn,async(req,res)=>{
 router.post('/courses', IsTeacherIn, async (req, res, next) => {
     try {
         console.log(req.teacher.teacherId)
-    const { name, vediosname, vediosdesc, desc, narxi, muddati } = req.body
-    let vedios = []
-    let i = 0
-    let existingcurs = await Curs.findOne({ teacher_Id: req.teacher.teacherId, Kursname: name })
-    if (existingcurs) {
-        return res.send("bunday kursni avval qushgansiz")
-    }
-    else {
-        if (!req.files.obloshka) {
-            return res.send("obloshkani kirit")
+        const { name, vediosname, vediosdesc, desc, narxi, muddati } = req.body
+        let vedios = []
+        let i = 0
+        let existingcurs = await Curs.findOne({ teacher_Id: req.teacher.teacherId, Kursname: name })
+        if (existingcurs) {
+            return res.send("bunday kursni avval qushgansiz")
         }
-        let { obloshka } = req.files
-        const folder = path.join(__dirname, 'courses', req.teacher.teacherId, name)
-        let obqoshimcha = obloshka.name.split(".").at(-1)
-        const location = path.join(folder, `obloshka.${obqoshimcha}`)
-        await fs.mkdir(folder, { recursive: true })
-        await fs.writeFile(location, obloshka.data)
-        for (let i = 0; i < req.files.file.length; i++) {
-            let file = req.files.file[i];
-            let qoshimcha = file.name.split(".").at(-1)
-            let vediosRand = randomUUID()
-            const location = path.join(folder, `${vediosRand}.${qoshimcha}`)
-            console.log(location)
-            vedios.push({
-                nomi: vediosname[i],
-                desc: vediosdesc[i],
-                orni: path.join("courses/" + req.teacher.teacherId + "/" + name + "/" + `${vediosRand}.${qoshimcha}`),
-
-            })
+        else {
+            if (!req.files.obloshka) {
+                return res.send("obloshkani kirit")
+            }
+            let { obloshka } = req.files
+            const folder = path.join(__dirname, 'courses', req.teacher.teacherId, name)
+            let obqoshimcha = obloshka.name.split(".").at(-1)
+            const location = path.join(folder, `obloshka.${obqoshimcha}`)
             await fs.mkdir(folder, { recursive: true })
-            await fs.writeFile(location, file.data)
+            await fs.writeFile(location, obloshka.data)
+            for (let i = 0; i < req.files.file.length; i++) {
+                let file = req.files.file[i];
+                let qoshimcha = file.name.split(".").at(-1)
+                let vediosRand = randomUUID()
+                const location = path.join(folder, `${vediosRand}.${qoshimcha}`)
+                console.log(location)
+                vedios.push({
+                    nomi: vediosname[i],
+                    desc: vediosdesc[i],
+                    orni: path.join("courses/" + req.teacher.teacherId + "/" + name + "/" + `${vediosRand}.${qoshimcha}`),
+
+                })
+                await fs.mkdir(folder, { recursive: true })
+                await fs.writeFile(location, file.data)
+            }
+
+            try {
+                const curs = new Curs({
+                    Kursname: name,
+                    obloshka: path.join("courses/" + req.teacher.teacherId + "/" + name + "/" + `obloshka.${obqoshimcha}`),
+                    teacher_Id: req.teacher.teacherId,
+                    Kursdesc: desc,
+                    narxi: narxi,
+                    subs: [],
+                    vedios: vedios,
+                    muddati: muddati,
+                    Comments: []
+                });
+
+
+                const savedCurs = await curs.save();
+                let oldteacher = await Teacher.findById(req.teacher.teacherId)
+                oldteacher.mekurs.push(savedCurs.id);
+                await oldteacher.save()
+                res.send(savedCurs);
+                next()
+            } catch (error) {
+                res.status(500).send(error);
+            }
         }
-
-        try {
-            const curs = new Curs({
-                Kursname: name,
-                obloshka: path.join("courses/" + req.teacher.teacherId + "/" + name + "/" + `obloshka.${obqoshimcha}`),
-                teacher_Id: req.teacher.teacherId,
-                Kursdesc: desc,
-                narxi: narxi,
-                subs: [],
-                vedios: vedios,
-                muddati: muddati,
-                Comments: []
-            });
-
-
-            const savedCurs = await curs.save();
-            let oldteacher = await Teacher.findById(req.teacher.teacherId)
-            oldteacher.mekurs.push(savedCurs.id);
-            await oldteacher.save()
-            res.send(savedCurs);
-            next()
-        } catch (error) {
-            res.status(500).send(error);
-        }
-    }
     } catch (error) {
-        console.log(error)
+        return res.send(error)
     }
-    
+
 
 })
 router.post('/courses/commint', IsLoggedIn, async (req, res, next) => {
@@ -211,7 +211,7 @@ router.put('/courses/:id', IsTeacherIn, async (req, res, next) => {
             res.status(500).send(error);
         }
     }
-    else{
+    else {
         res.send("ruxsat yoq")
     }
 
