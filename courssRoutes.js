@@ -82,7 +82,8 @@ router.post("/courseone/me",IsTeacherIn,async(req,res)=>{
 })
 
 router.post('/courses', IsTeacherIn, async (req, res, next) => {
-    console.log(req.teacher.teacherId)
+    try {
+        console.log(req.teacher.teacherId)
     const { name, vediosname, vediosdesc, desc, narxi, muddati } = req.body
     let vedios = []
     let i = 0
@@ -140,6 +141,10 @@ router.post('/courses', IsTeacherIn, async (req, res, next) => {
             res.status(500).send(error);
         }
     }
+    } catch (error) {
+        console.log(error)
+    }
+    
 
 })
 router.post('/courses/commint', IsLoggedIn, async (req, res, next) => {
