@@ -101,7 +101,8 @@ router.post('/courses', IsTeacherIn, async (req, res, next) => {
             const location = path.join(folder, `obloshka.${obqoshimcha}`)
             await fs.mkdir(folder, { recursive: true })
             await fs.writeFile(location, obloshka.data)
-            for (let i = 0; i < req.files.file.length; i++) {
+            console.log(vediosname.length)
+            for (let i = 0; i <vediosname.length; i++) {
                 let file = req.files.file[i];
                 let qoshimcha = file.name.split(".").at(-1)
                 let vediosRand = randomUUID()
@@ -138,6 +139,7 @@ router.post('/courses', IsTeacherIn, async (req, res, next) => {
                 res.send(savedCurs);
                 next()
             } catch (error) {
+                console.log(err)
                 res.status(500).send(error);
             }
         }
