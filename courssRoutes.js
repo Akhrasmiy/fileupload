@@ -89,11 +89,11 @@ router.post('/courses', IsTeacherIn, async (req, res, next) => {
         let i = 0
         let existingcurs = await Curs.findOne({ teacher_Id: req.teacher.teacherId, Kursname: name })
         if (existingcurs) {
-            return res.send("bunday kursni avval qushgansiz")
+            return res.status(500).send("bunday kursni avval qushgansiz")
         }
         else {
             if (!req.files.obloshka) {
-                return res.send("obloshkani kirit")
+                return res.status(500).send("obloshkani kirit")
             }
             let { obloshka } = req.files
             const folder = path.join(__dirname, 'courses', req.teacher.teacherId, name)
@@ -142,7 +142,7 @@ router.post('/courses', IsTeacherIn, async (req, res, next) => {
             }
         }
     } catch (error) {
-        return res.send(error)
+        return res.status(500).send(error)
     }
 
 
