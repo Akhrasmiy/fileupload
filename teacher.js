@@ -143,39 +143,39 @@ router.post('/teacher/register', async (req, res) => {
 router.put('/teacher/', IsTeacherIn, async (req, res) => {
   try {
     const { bio, mutahasislik, joylashuv, username, fullname, email, boglashlink } = req.body;
+    if (!req.files || !req.files.hasOwnProperty("file")) {
+      return res.status(400).send("File not found");
+    }
     const { file } = req.files;
     const oldteacher = await Teacher.findById(req.teacher.teacherId);
     let yourself=await Teacher.findById(req.teacher.teacherId)
-    if(username=yourself.username){
+    if (username === yourself.username) {
 
+    } else {
+      const existingTeacher = await Teacher.findOne({ username: username });
+      if (existingTeacher) {
+        return res.status(401).send("bu nomdagi foydalanuvchi mavjud");
+      }
     }
-    else{const existingTeacher = await Teacher.findOne({ username: username });
-    if (existingTeacher) {
-      return res.status(401).send("bu nomdagi foydalanuvchi mavjud");
-    }}
-    await file.mv(path.join(__dirname + "/" + oldteacher.path));
-    try {
-      const teacher = await Teacher.findByIdAndUpdate(id, {
-
-        path: oldteacher.path,
-        username,
-        hisob: oldteacher.hisob,
-        fullname,
-        email,
-        bio,
-        obunachilar: oldteacher.obunachilar,
-        mekurs: oldteacher.mekurs,
-        joylashuv,
-        mutahasislik,
-        boglashlink
-      }, { new: true });
-      res.send(teacher);
-    } catch (error) {
-      res.status(500).send(error);
-    }
+    const filePath = path.join(__dirname, "uploads", file.name);
+    await file.mv(filePath);
+    const teacher = await Teacher.findByIdAndUpdate(req.teacher.teacherId, {
+      path: filePath,
+      username,
+      hisob: oldteacher.hisob,
+      fullname,
+      email,
+      bio,
+      obunachilar: oldteacher.obunachilar,
+      mekurs: oldteacher.mekurs,
+      joylashuv,
+      mutahasislik,
+      boglashlink
+    }, { new: true });
+    res.send(teacher);
   } catch (error) {
-    res.status(501).send(error)
-    console.log(error)
+    res.status(500).send(error);
+    console.log(error);
   }
 });
 
