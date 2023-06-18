@@ -142,8 +142,6 @@ router.post('/teacher/register', async (req, res) => {
 
 router.put('/teacher/', IsTeacherIn, async (req, res) => {
   try {
-
-
     const { bio, mutahasislik, joylashuv, username, fullname, email, boglashlink } = req.body;
     const { file } = req.files;
     const oldteacher = await Teacher.findById(req.teacher.teacherId);
@@ -173,6 +171,7 @@ router.put('/teacher/', IsTeacherIn, async (req, res) => {
     }
   } catch (error) {
     res.status(501).send(error)
+    console.log(error)
   }
 });
 
