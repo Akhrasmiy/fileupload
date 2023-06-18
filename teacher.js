@@ -145,10 +145,14 @@ router.put('/teacher/', IsTeacherIn, async (req, res) => {
     const { bio, mutahasislik, joylashuv, username, fullname, email, boglashlink } = req.body;
     const { file } = req.files;
     const oldteacher = await Teacher.findById(req.teacher.teacherId);
-    const existingTeacher = await Teacher.findOne({ username: username });
+    let yourself=await Teacher.findById(req.teacher.teacherId)
+    if(username=yourself.username){
+
+    }
+    else{const existingTeacher = await Teacher.findOne({ username: username });
     if (existingTeacher) {
       return res.status(401).send("bu nomdagi foydalanuvchi mavjud");
-    }
+    }}
     await file.mv(path.join(__dirname + "/" + oldteacher.path));
     try {
       const teacher = await Teacher.findByIdAndUpdate(id, {
