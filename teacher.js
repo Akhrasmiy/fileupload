@@ -72,7 +72,7 @@ router.get('/teacherinfo/:id', async (req, res) => {
     res.status(500).send("Server xatosi: " + error);
   }
 });
-router.get('/teacherme',IsTeacherIn, async (req, res) => {
+router.get('/teacherme', IsTeacherIn, async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.teacher.teacherId);
     if (!teacher) {
@@ -84,13 +84,13 @@ router.get('/teacherme',IsTeacherIn, async (req, res) => {
     res.status(500).send("Server xatosi: " + error);
   }
 });
-router.get('/teacher-mycurs',IsTeacherIn,async(req,res)=>{
+router.get('/teacher-mycurs', IsTeacherIn, async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.teacher.teacherId).select("_id")
     if (!teacher) {
       return res.status(404).send('O\'qituvchi topilmadi');
     }
-    const curs=await Curs.find({teacher_Id:teacher.id})
+    const curs = await Curs.find({ teacher_Id: teacher.id })
     res.send(curs);
   } catch (error) {
     res.status(500).send("Server xatosi: " + error);
@@ -141,32 +141,38 @@ router.post('/teacher/register', async (req, res) => {
 });
 
 router.put('/teacher/', IsTeacherIn, async (req, res) => {
-  const { bio, mutahasislik, joylashuv, username, fullname, email, boglashlink} = req.body;
-  const { file } = req.files;
-  const oldteacher = await Teacher.findById(req.teacher.teacherId);
-  const existingTeacher = await Teacher.findOne({ username: username });
-  if (existingTeacher) {
-    return res.send("bu nomdagi foydalanuvchi mavjud");
-  }
-  await file.mv(path.join(__dirname+"/"+oldteacher.path));
   try {
-    const teacher = await Teacher.findByIdAndUpdate(id, {
-      
-      path: oldteacher.path,
-      username,
-      hisob: oldteacher.hisob,
-      fullname,
-      email,
-      bio,
-      obunachilar: oldteacher.obunachilar,
-      mekurs: oldteacher.mekurs,
-      joylashuv,
-      mutahasislik,
-      boglashlink
-    }, { new: true });
-    res.send(teacher);
+
+
+    const { bio, mutahasislik, joylashuv, username, fullname, email, boglashlink } = req.body;
+    const { file } = req.files;
+    const oldteacher = await Teacher.findById(req.teacher.teacherId);
+    const existingTeacher = await Teacher.findOne({ username: username });
+    if (existingTeacher) {
+      return res.send("bu nomdagi foydalanuvchi mavjud");
+    }
+    await file.mv(path.join(__dirname + "/" + oldteacher.path));
+    try {
+      const teacher = await Teacher.findByIdAndUpdate(id, {
+
+        path: oldteacher.path,
+        username,
+        hisob: oldteacher.hisob,
+        fullname,
+        email,
+        bio,
+        obunachilar: oldteacher.obunachilar,
+        mekurs: oldteacher.mekurs,
+        joylashuv,
+        mutahasislik,
+        boglashlink
+      }, { new: true });
+      res.send(teacher);
+    } catch (error) {
+      res.status(500).send(error);
+    }
   } catch (error) {
-    res.status(500).send(error);
+    res.status(501).send(error)
   }
 });
 
