@@ -165,6 +165,7 @@ router.put('/teacher/', IsTeacherIn, async (req, res) => {
         mutahasislik,
         boglashlink
       }, { new: true });
+      teacher.save()
       res.send(teacher);
     } catch (error) {
       res.status(500).send(error);
