@@ -15,6 +15,7 @@ const teacherModul = require("./moduls/teacherModul")
 const cursModul = require("./moduls/cursModul");
 const IsAdminIn = require('./is/isadmin');
 const adminschema = require('./moduls/adminModul');
+const IsClickIn = require('./is/isClick');
 // GET so'rovi
 router.use(express.json())
 router.use(fileUpload({
@@ -275,6 +276,21 @@ router.post("/users/tolov", IsAdminIn, async (req, res) => {
     
     console.log(user.price)
     user.price =user.price + req.body.pul_miqdori
+    user.save()
+    res.send(user)
+  } catch (error) {
+    res.send("error")
+  }
+
+})
+router.post("/click/tolov", IsClickIn, async (req, res) => {
+  try {
+    
+    let user = await User.findById(req.body.merchant_trans_id);
+    if(!user){
+      return res.sendStatus(401).send("bunday user yoq")
+    }
+    user.price =user.price + Number(req.body.amount)
     user.save()
     res.send(user)
   } catch (error) {

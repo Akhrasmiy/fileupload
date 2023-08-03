@@ -18,7 +18,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/project', {
 app.use(express.urlencoded({ extended: true }))
 
 
-app.use(cors())
+app.use(cors(origin, "*"))
 
 app.use(userRout);
 app.use(fileRout);
