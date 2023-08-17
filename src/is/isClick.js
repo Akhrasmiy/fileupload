@@ -7,12 +7,7 @@ const express = require('express');
  * @param {express.NextFunction} next
  */
 const IsClickIn = async(req, res, next) => {
-   if(req.headers.authorization==process.env.Click_pass){
-    next()
-   }
-   else{
-    res.sendStatus(401).send("bu token xato")
-   }
+   next()
 }
 
 module.exports= IsClickIn;

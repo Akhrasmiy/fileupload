@@ -1,35 +1,36 @@
-const mongoose = require('mongoose');
-const express = require('express');
-const path = require("path")
-const bcrypt = require('bcrypt')
+const mongoose = require("mongoose");
+const express = require("express");
+const path = require("path");
+const bcrypt = require("bcrypt");
 const router = express.Router();
-require("dotenv/config")
+require("dotenv/config");
 const IsLoggedIn = require("./is/islogedin");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 const fileUpload = require("express-fileupload");
-const { writeFile } = require('fs');
-const fs = require('fs/promises');
-const { randomUUID } = require('crypto');
-const userschema1 = require('./moduls/userModul');
-const teacherModul = require("./moduls/teacherModul")
+const { writeFile } = require("fs");
+const fs = require("fs/promises");
+const { randomUUID } = require("crypto");
+const userschema1 = require("./moduls/userModul");
+const teacherModul = require("./moduls/teacherModul");
 const cursModul = require("./moduls/cursModul");
-const IsAdminIn = require('./is/isadmin');
-const adminschema = require('./moduls/adminModul');
-const IsClickIn = require('./is/isClick');
+const IsAdminIn = require("./is/isadmin");
+const adminschema = require("./moduls/adminModul");
+const IsClickIn = require("./is/isClick");
 // GET so'rovi
-router.use(express.json())
-router.use(fileUpload({
-  limits: { fileSize: 50 * 1024 * 1024 * 1024 },
-}));
+router.use(express.json());
+router.use(
+  fileUpload({
+    limits: { fileSize: 50 * 1024 * 1024 * 1024 },
+  })
+);
 // router.use(fileUpload({
 //   limits: { fileSize: 50 * 1024 * 1024 * 1024 },
 // }));
 
-const User = mongoose.model('User', userschema1);
-const Curs = mongoose.model('Curs', cursModul);
-const Teacher = mongoose.model('Teacher', teacherModul)
-router.get('/users', async (req, res) => {
-
+const User = mongoose.model("User", userschema1);
+const Curs = mongoose.model("Curs", cursModul);
+const Teacher = mongoose.model("Teacher", teacherModul);
+router.get("/users", async (req, res) => {
   try {
     const data = await User.find({});
     res.send(data);
@@ -37,22 +38,22 @@ router.get('/users', async (req, res) => {
     res.status(500).send(error);
   }
 });
-router.get('/users/:id', async (req, res) => {
+router.get("/users/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).send('Foydalanuvchi topilmadi');
+      return res.status(404).send("Foydalanuvchi topilmadi");
     }
-    res.send(user)
+    res.send(user);
   } catch (error) {
     res.status(500).send("Server xatosi: " + error);
   }
 });
 router.get("/usersme", IsLoggedIn, async (req, res, next) => {
-  const user = await User.findById(req.user.userId)
-  res.send(user)
-  next()
-})
+  const user = await User.findById(req.user.userId);
+  res.send(user);
+  next();
+});
 router.post("/users/login", async (req, res, next) => {
   const { username, password } = req.body;
 
@@ -60,46 +61,51 @@ router.post("/users/login", async (req, res, next) => {
     const user = await User.findOne({ username: req.body.username });
 
     if (!user) {
-      return res.status(400).json({ message: "Noto'g'ri elektron pochta yoki parol" });
+      return res
+        .status(400)
+        .json({ message: "Noto'g'ri elektron pochta yoki parol" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
-    console.log(password)
+    console.log(password);
     if (!passwordMatch) {
-      return res.status(400).json({ message: "Noto'g'ri elektron pochta yoki parol" });
+      return res
+        .status(400)
+        .json({ message: "Noto'g'ri elektron pochta yoki parol" });
     }
 
-    const token = jwt.sign(
-      { userId: user.id },
-      process.env.ADMIN_hash,
-      { expiresIn: 3600 * 60 * 60 }
-    );
+    const token = jwt.sign({ userId: user.id }, process.env.ADMIN_hash, {
+      expiresIn: 3600 * 60 * 60,
+    });
     res.status(200).json({ token });
   } catch (error) {
     next(error);
   }
 });
-router.post('/users/register', async (req, res, next) => {
-  console.log(req.body)
-  let filename = randomUUID()
+router.post("/users/register", async (req, res, next) => {
+  console.log(req.body);
+  let filename = randomUUID();
   if (!req.files) {
-    return res.send("path maydon bosh bolishi mumkin emas")
+    return res.send("path maydon bosh bolishi mumkin emas");
   }
-  const { file } = req.files
+  const { file } = req.files;
 
-  const hashpass = await bcrypt.hash(req.body.password, 10)
+  const hashpass = await bcrypt.hash(req.body.password, 10);
   const student = await User.findOne({ username: req.body.username });
   if (student) {
-    return res.send("bunday nomli foydalanuvchi bor")
+    return res.send("bunday nomli foydalanuvchi bor");
   }
 
-  let qoshimcha = file.name.split(".").at(-1)
-  let a = path.join("/uploads", `${filename}.${qoshimcha}`)
-  await file.mv(path.join(__dirname, "/uploads", `${filename}.${qoshimcha}`), (err) => {
-    if (err) {
-      console.log(err);
+  let qoshimcha = file.name.split(".").at(-1);
+  let a = path.join("/uploads", `${filename}.${qoshimcha}`);
+  await file.mv(
+    path.join(__dirname, "/uploads", `${filename}.${qoshimcha}`),
+    (err) => {
+      if (err) {
+        console.log(err);
+      }
     }
-  })
+  );
 
   try {
     const user = new User({
@@ -109,16 +115,16 @@ router.post('/users/register', async (req, res, next) => {
       fullname: req.body.fullname,
       email: req.body.email,
       price: 0,
-      savecurss: []
+      savecurss: [],
     });
     const savedUser = await user.save();
     res.send(savedUser);
-    next()
+    next();
   } catch (error) {
     res.status(500).send(error);
   }
 });
-router.put('/users/', IsLoggedIn, async (req, res, next) => {
+router.put("/users/", IsLoggedIn, async (req, res, next) => {
   try {
     const id = req.user.userId;
     const { file } = req.files;
@@ -133,14 +139,18 @@ router.put('/users/', IsLoggedIn, async (req, res, next) => {
 
     await file.mv(path.join(user.path));
 
-    const updatedUser = await User.findByIdAndUpdate(id, {
-      username,
-      fullname,
-      path: user.path,
-      email,
-      price: user.price,
-      password: hashpass
-    }, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        username,
+        fullname,
+        path: user.path,
+        email,
+        price: user.price,
+        password: hashpass,
+      },
+      { new: true }
+    );
 
     res.send(updatedUser);
     next();
@@ -148,118 +158,123 @@ router.put('/users/', IsLoggedIn, async (req, res, next) => {
     res.status(500).send(error);
   }
 });
-router.post('/baycurs', IsLoggedIn, async (req, res, next) => {
+router.post("/baycurs", IsLoggedIn, async (req, res, next) => {
   try {
-    const { cursId } = req.body
-    let curs = await Curs.findById(cursId)
+    const { cursId } = req.body;
+    let curs = await Curs.findById(cursId);
     if (!curs) {
-      return res.send("bunday kurs mavjud emas")
+      return res.send("bunday kurs mavjud emas");
     }
-    let admin = await Admin.findOne({})
-    console.log(admin)
+    let admin = await Admin.findOne({});
+    console.log(admin);
     if (curs.subs.includes(req.user.userId)) {
       return res.send("bu Kursni avval olgansiz");
     }
-    let user = await User.findById(req.user.userId)
-    console.log(user)
-    let teacher = await Teacher.findById(curs.teacher_Id)
+    let user = await User.findById(req.user.userId);
+    console.log(user);
+    let teacher = await Teacher.findById(curs.teacher_Id);
 
     if (user.price >= curs.narxi) {
-      user.price = Number(user.price)- Number(curs.narxi) ;
-      teacher.hisob =Number(teacher.hisob)+ Number(curs.narxi)* 0.8;
-      admin.hisobi =Number(admin.hisobi)+ Number(curs.narxi) * 0.2
-      curs.subs.push(req.user.userId)
+      user.price = Number(user.price) - Number(curs.narxi);
+      teacher.hisob = Number(teacher.hisob) + Number(curs.narxi) * 0.8;
+      admin.hisobi = Number(admin.hisobi) + Number(curs.narxi) * 0.2;
+      curs.subs.push(req.user.userId);
       user.mycurs.push({
-        qachongacha: Math.floor(Date.now() / 1000 + curs.muddati * 30 * 24 * 60 * 60),
-        cursId: cursId
-      })
-      await user.save()
-      await admin.save()
-      await curs.save()
-      await teacher.save()
-      console.log(user, teacher, curs)
-      res.send("muvaffaqqiyatli")
-    }
-    else {
-      res.send("hisobingizni toldiring")
+        qachongacha: Math.floor(
+          Date.now() / 1000 + curs.muddati * 30 * 24 * 60 * 60
+        ),
+        cursId: cursId,
+      });
+      await user.save();
+      await admin.save();
+      await curs.save();
+      await teacher.save();
+      console.log(user, teacher, curs);
+      res.send("muvaffaqqiyatli");
+    } else {
+      res.send("hisobingizni toldiring");
     }
 
-    next()
+    next();
   } catch (error) {
-    res.send(error)
+    res.send(error);
   }
-
-})
+});
 router.post("/users/savecurs", IsLoggedIn, async (req, res) => {
-  let user = await User.findById(req.user.userId)
-  const curs = await Curs.findById(req.body.cursId)
+  let user = await User.findById(req.user.userId);
+  const curs = await Curs.findById(req.body.cursId);
 
   if (!curs) {
-    return res.send("bunday kurs mavjud emas")
+    return res.send("bunday kurs mavjud emas");
   }
   if (user.savecurss.includes(req.body.cursId)) {
-    user.savecurss.splice(user.savecurss.indexOf(req.body.cursId), 1)
+    user.savecurss.splice(user.savecurss.indexOf(req.body.cursId), 1);
+  } else {
+    user.savecurss.push(req.body.cursId);
   }
-  else {
-    user.savecurss.push(req.body.cursId)
-  }
-  user.save()
-  res.send(user)
-})
+  user.save();
+  res.send(user);
+});
 router.post("/users/obuna", IsLoggedIn, async (req, res) => {
-  let user = await User.findById(req.user.userId)
-  const teacher = await Teacher.findById(req.body.teacher_Id)
+  let user = await User.findById(req.user.userId);
+  const teacher = await Teacher.findById(req.body.teacher_Id);
   if (!teacher) {
-    return res.send("bunday teacher mavjud emas")
+    return res.send("bunday teacher mavjud emas");
   }
   if (teacher.obunachilar.includes(req.body.teacher_Id)) {
-    teacher.obunachilar.splice(teacher.obunachilar.indexOf(req.body.teacher_Id), 1)
-    user.teachers.splice(user.teachers.indexOf(req.body.teacher_Id), 1)
+    teacher.obunachilar.splice(
+      teacher.obunachilar.indexOf(req.body.teacher_Id),
+      1
+    );
+    user.teachers.splice(user.teachers.indexOf(req.body.teacher_Id), 1);
+  } else {
+    teacher.obunachilar.push(req.body.teacher_Id);
+    user.teachers.push(req.body.teacher_Id);
   }
-  else {
-    teacher.obunachilar.push(req.body.teacher_Id)
-    user.teachers.push(req.body.teacher_Id)
-  }
-  user.save()
-  teacher.save()
-  res.send(user.teachers)
-})
-router.get('/usersinfo/:id', async (req, res) => {
-  const user = await User.findById(req.params.id).select('fullname path')
-  console.log(user)
-  res.send(user)
-})
+  user.save();
+  teacher.save();
+  res.send(user.teachers);
+});
+router.get("/usersinfo/:id", async (req, res) => {
+  const user = await User.findById(req.params.id).select("fullname path");
+  console.log(user);
+  res.send(user);
+});
 
-router.put('/users/:id', async (req, res) => {
+router.put("/users/:id", async (req, res) => {
   const { id } = req.params;
   const { username, fullname, email, type, price } = req.body;
-  const { file } = req.files
+  const { file } = req.files;
   const user = await User.findOne({ username: req.body.username });
-  let a = path.join(user.path)
+  let a = path.join(user.path);
   await file.mv(path.join(user.path), (err) => {
     if (err) {
       console.log(err);
     }
-  })
+  });
   try {
-    const user = await User.findByIdAndUpdate(id, {
-      username,
-      fullname,
-      path: a,
-      email,
-      type,
-      price,
-    }, { new: true });
+    const user = await User.findByIdAndUpdate(
+      id,
+      {
+        username,
+        fullname,
+        path: a,
+        email,
+        type,
+        price,
+      },
+      { new: true }
+    );
     res.send(user);
   } catch (error) {
     res.status(500).send(error);
   }
 });
-router.delete('/users/:id', async (req, res) => {
+router.delete("/users/:id", async (req, res) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
     if (!deletedUser) {
-      return res.status(404).send('User not found');
+      return res.status(404).send("User not found");
     }
     res.send(deletedUser);
   } catch (error) {
@@ -267,35 +282,56 @@ router.delete('/users/:id', async (req, res) => {
   }
 });
 
-const Admin = mongoose.model('Admin', adminschema);
+const Admin = mongoose.model("Admin", adminschema);
 router.post("/users/tolov", IsAdminIn, async (req, res) => {
   try {
-    console.log(req.admin)
-    
-    let user = await User.findById(req.body.userId);
-    
-    console.log(user.price)
-    user.price =user.price + req.body.pul_miqdori
-    user.save()
-    res.send(user)
-  } catch (error) {
-    res.send("error")
-  }
+    console.log(req.admin);
 
-})
+    let user = await User.findById(req.body.userId);
+
+    console.log(user.price);
+    user.price = user.price + req.body.pul_miqdori;
+    user.save();
+    res.send(user);
+  } catch (error) {
+    res.send("error");
+  }
+});
+router.post("/click/verify", async (req, res) => {
+  try {
+    let error = 0;
+    const userId = req.merchant_trans_id;
+    let user = await User.findById(userId);
+    if (!user) {
+      error = 404;
+    } else {
+      res.send({
+        click_trans_id: req.click_trans_id,
+        merchant_trans_id: req.merchant_trans_id,
+        merchant_prepare_id: null,
+        error: error,
+        error_note: null,
+      });
+    }
+  } catch (error) {res.send(error)}
+});
 router.post("/click/tolov", IsClickIn, async (req, res) => {
   try {
-    
     let user = await User.findById(req.body.merchant_trans_id);
-    if(!user){
-      return res.sendStatus(401).send("bunday user yoq")
+    if (!user) {
+      return res.sendStatus(401).send("bunday user yoq");
     }
-    user.price =user.price + Number(req.body.amount)
-    user.save()
-    res.send(user)
+    user.price = user.price + Number(req.body.amount);
+    user.save();
+    res.send({
+      click_trans_id: req.click_trans_id,
+      merchant_trans_id: req.merchant_trans_id,
+      merchant_prepare_id: null,
+      error: error,
+      error_note: null,
+    });
   } catch (error) {
-    res.send("error")
+    res.send("error");
   }
-
-})
+});
 module.exports = router;
