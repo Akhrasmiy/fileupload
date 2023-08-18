@@ -299,18 +299,24 @@ router.post("/users/tolov", IsAdminIn, async (req, res) => {
 });
 router.post("/click/verify", async (req, res) => {
   try {
-    let error = 0;
+    
     const userId = req.merchant_trans_id;
     let user = await User.findById(userId);
     if (!user) {
-      error = 404;
+      res.send({
+        click_trans_id: req.click_trans_id,
+        merchant_trans_id: req.merchant_trans_id,
+        merchant_prepare_id: null,
+        error: -5,
+        error_note: "User does not exist"
+      });
     } else {
       res.send({
         click_trans_id: req.click_trans_id,
         merchant_trans_id: req.merchant_trans_id,
         merchant_prepare_id: null,
-        error: error,
-        error_note: null,
+        error: 0,
+        error_note: "Success"
       });
     }
   } catch (error) {res.send(error)}
@@ -319,7 +325,13 @@ router.post("/click/tolov", IsClickIn, async (req, res) => {
   try {
     let user = await User.findById(req.body.merchant_trans_id);
     if (!user) {
-      return res.sendStatus(401).send("bunday user yoq");
+      res.send({
+        click_trans_id: req.click_trans_id,
+        merchant_trans_id: req.merchant_trans_id,
+        merchant_prepare_id: null,
+        error: -5,
+        error_note: "User does not exist"
+      });
     }
     user.price = user.price + Number(req.body.amount);
     user.save();
@@ -327,8 +339,8 @@ router.post("/click/tolov", IsClickIn, async (req, res) => {
       click_trans_id: req.click_trans_id,
       merchant_trans_id: req.merchant_trans_id,
       merchant_prepare_id: null,
-      error: error,
-      error_note: null,
+      error: 0,
+      error_note: "Success"
     });
   } catch (error) {
     res.send("error");
