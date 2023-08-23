@@ -299,21 +299,21 @@ router.post("/users/tolov", IsAdminIn, async (req, res) => {
 });
 router.post("/click/verify", async (req, res) => {
   try {
-    const userId = req.merchant_trans_id;
+    const userId = req.body.merchant_trans_id;
     let user = await User.findById(userId);
     if (!user) {
       res.send({
-        click_trans_id: req.click_trans_id,
-        merchant_trans_id: req.merchant_trans_id,
-        merchant_prepare_id: req.merchant_trans_id,
+        click_trans_id: req.body.click_trans_id,
+        merchant_trans_id: req.body.merchant_trans_id,
+        merchant_prepare_id: req.body.merchant_trans_id,
         error: -5,
         error_note: "User does not exist"
       });
     } else {
       res.send({
-        click_trans_id: req.click_trans_id,
-        merchant_trans_id: req.merchant_trans_id,
-        merchant_prepare_id: req.merchant_trans_id,
+        click_trans_id: req.body.click_trans_id,
+        merchant_trans_id: req.body.merchant_trans_id,
+        merchant_prepare_id: req.body.merchant_trans_id,
         error: 0,
         error_note: "Success"
       });
@@ -322,12 +322,13 @@ router.post("/click/verify", async (req, res) => {
 });
 router.post("/click/tolov", IsClickIn, async (req, res) => {
   try {
+
     let user = await User.findById(req.body.merchant_trans_id);
     if (!user) {
       res.send({
-        click_trans_id: req.click_trans_id,
-        merchant_trans_id: req.merchant_trans_id,
-        merchant_prepare_id: null,
+        click_trans_id: req.body.click_trans_id,
+        merchant_trans_id: req.body.merchant_trans_id,
+        merchant_prepare_id: req.body.merchant_trans_id,
         error: -5,
         error_note: "User does not exist"
       });
@@ -335,9 +336,9 @@ router.post("/click/tolov", IsClickIn, async (req, res) => {
     user.price = user.price + Number(req.body.amount);
     user.save();
     res.send({
-      click_trans_id: req.click_trans_id,
-      merchant_trans_id: req.merchant_trans_id,
-      merchant_prepare_id: req.merchant_trans_id,
+      click_trans_id: req.body.click_trans_id,
+      merchant_trans_id: req.body.merchant_trans_id,
+      merchant_prepare_id: req.body.merchant_trans_id,
       error: 0,
       error_note: "Success"
     });
