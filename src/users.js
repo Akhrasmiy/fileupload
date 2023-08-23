@@ -16,7 +16,7 @@ const cursModul = require("./moduls/cursModul");
 const IsAdminIn = require("./is/isadmin");
 const adminschema = require("./moduls/adminModul");
 const IsClickIn = require("./is/isClick");
-// GET so'rovi
+// GET so'rov
 router.use(express.json());
 router.use(
   fileUpload({
