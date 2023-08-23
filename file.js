@@ -5,7 +5,7 @@ const path = require("path")
 const bcrypt = require('bcrypt');
 const adminschema = require('./moduls/adminModul');
 const teacherschema = require('./moduls/teacherModul');
-const IsAdminIn = require('./is/isadmin');
+const IsAdminIn = require('./src/is/isadmin');
 const router = express.Router();
 // GET so'rovi
 const Admin = mongoose.model('Admin', adminschema);

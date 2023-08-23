@@ -10,8 +10,8 @@ const { stringify } = require('querystring');
 const { randomUUID } = require('crypto');
 const cursschema = require('./moduls/cursModul');
 const teacherschema = require('./moduls/teacherModul');
-const IsTeacherIn = require('./is/isTeacherin');
-const IsLoggedIn = require('./is/islogedin');
+const IsTeacherIn = require('./src/is/isTeacherin');
+const IsLoggedIn = require('./src/is/islogedin');
 const userschema = require('./moduls/userModul');
 // GET so'rovi
 router.use(express.json())

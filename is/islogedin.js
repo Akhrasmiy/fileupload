@@ -1,7 +1,7 @@
-const jwt =require("jsonwebtoken");
-const mongoose = require('mongoose');
-const teacherModul=require("../moduls/teacherModul")
+const jwt = require("jsonwebtoken");
 require("dotenv/config");
+const mongoose = require('mongoose');
+const userschema1 = require('../../moduls/userModul');
 
 /**
  *
@@ -10,16 +10,15 @@ require("dotenv/config");
  * @param {express.NextFunction} next
  */
 
-const Teacher=mongoose.model('Teacher',teacherModul)
-const IsTeacherIn = async(req, res, next) => {
+const User = mongoose.model('User', userschema1);
+
+const IsLoggedIn = async (req, res, next) => {
     try {
         const token = req.headers.authorization;
         const payload = jwt.verify(token, process.env.ADMIN_hash)
-        req.teacher = { teacherId: payload.teacherId };
-        console.log(payload)
-        const teacher = await Teacher.findById(payload.teacherId);
-        if (teacher) {
-            req.teacher = { teacherId: payload.teacherId };
+        const user = await User.findById(payload.userId);
+        if (user) {
+            req.user = { userId: payload.userId };
             console.log(payload)
             next()
         }
@@ -37,4 +36,4 @@ const IsTeacherIn = async(req, res, next) => {
     }
 }
 
-module.exports= IsTeacherIn;
+module.exports = IsLoggedIn;

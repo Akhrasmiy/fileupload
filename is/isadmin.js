@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
 require("dotenv/config");
 const mongoose = require('mongoose');
-const userschema1 = require('../moduls/userModul');
+const userschema1 = require('../../moduls/userModul');
+const adminschema = require("../../moduls/adminModul");
 
 /**
  *
@@ -10,15 +11,15 @@ const userschema1 = require('../moduls/userModul');
  * @param {express.NextFunction} next
  */
 
-const User = mongoose.model('User', userschema1);
+const Admin = mongoose.model('Admin', adminschema);
 
-const IsLoggedIn = async (req, res, next) => {
+const IsAdminIn = async (req, res, next) => {
     try {
         const token = req.headers.authorization;
         const payload = jwt.verify(token, process.env.ADMIN_hash)
-        const user = await User.findById(payload.userId);
+        const user = await Admin.findById(payload.adminId);
         if (user) {
-            req.user = { userId: payload.userId };
+            req.admin = { adminId: payload.adminId };
             console.log(payload)
             next()
         }
@@ -36,4 +37,4 @@ const IsLoggedIn = async (req, res, next) => {
     }
 }
 
-module.exports = IsLoggedIn;
+module.exports = IsAdminIn;

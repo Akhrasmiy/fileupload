@@ -1,8 +1,7 @@
-const jwt = require("jsonwebtoken");
-require("dotenv/config");
+const jwt =require("jsonwebtoken");
 const mongoose = require('mongoose');
-const userschema1 = require('../moduls/userModul');
-const adminschema = require("../moduls/adminModul");
+const teacherModul=require("../../moduls/teacherModul")
+require("dotenv/config");
 
 /**
  *
@@ -11,15 +10,16 @@ const adminschema = require("../moduls/adminModul");
  * @param {express.NextFunction} next
  */
 
-const Admin = mongoose.model('Admin', adminschema);
-
-const IsAdminIn = async (req, res, next) => {
+const Teacher=mongoose.model('Teacher',teacherModul)
+const IsTeacherIn = async(req, res, next) => {
     try {
         const token = req.headers.authorization;
         const payload = jwt.verify(token, process.env.ADMIN_hash)
-        const user = await Admin.findById(payload.adminId);
-        if (user) {
-            req.admin = { adminId: payload.adminId };
+        req.teacher = { teacherId: payload.teacherId };
+        console.log(payload)
+        const teacher = await Teacher.findById(payload.teacherId);
+        if (teacher) {
+            req.teacher = { teacherId: payload.teacherId };
             console.log(payload)
             next()
         }
@@ -37,4 +37,4 @@ const IsAdminIn = async (req, res, next) => {
     }
 }
 
-module.exports = IsAdminIn;
+module.exports= IsTeacherIn;
