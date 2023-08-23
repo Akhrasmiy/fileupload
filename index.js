@@ -25,7 +25,7 @@ app.use(fileRout);
 app.use(teacherRout)
 app.use(cursRout);
 
-app.use(express.limit(1000000000000));
+// app.use(express.limit(1000000000000));
 
 
 
