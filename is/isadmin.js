@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 require("dotenv/config");
 const mongoose = require('mongoose');
-const userschema1 = require('../../moduls/userModul');
-const adminschema = require("../../moduls/adminModul");
+const userschema1 = require('../moduls/userModul');
+const adminschema = require("../moduls/adminModul");
 
 /**
  *

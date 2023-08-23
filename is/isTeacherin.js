@@ -1,6 +1,6 @@
 const jwt =require("jsonwebtoken");
 const mongoose = require('mongoose');
-const teacherModul=require("../../moduls/teacherModul")
+const teacherModul=require("../moduls/teacherModul")
 require("dotenv/config");
 
 /**
