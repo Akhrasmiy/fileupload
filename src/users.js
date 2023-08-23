@@ -305,7 +305,7 @@ router.post("/click/verify", async (req, res) => {
       res.send({
         click_trans_id: req.click_trans_id,
         merchant_trans_id: req.merchant_trans_id,
-        merchant_prepare_id: null,
+        merchant_prepare_id: req.merchant_trans_id,
         error: -5,
         error_note: "User does not exist"
       });
@@ -313,7 +313,7 @@ router.post("/click/verify", async (req, res) => {
       res.send({
         click_trans_id: req.click_trans_id,
         merchant_trans_id: req.merchant_trans_id,
-        merchant_prepare_id: null,
+        merchant_prepare_id: req.merchant_trans_id,
         error: 0,
         error_note: "Success"
       });
@@ -337,7 +337,7 @@ router.post("/click/tolov", IsClickIn, async (req, res) => {
     res.send({
       click_trans_id: req.click_trans_id,
       merchant_trans_id: req.merchant_trans_id,
-      merchant_prepare_id: null,
+      merchant_prepare_id: req.merchant_trans_id,
       error: 0,
       error_note: "Success"
     });
