@@ -5,7 +5,7 @@ const path = require("path")
 const bcrypt = require('bcrypt');
 const adminschema = require('./moduls/adminModul');
 const teacherschema = require('./moduls/teacherModul');
-const IsAdminIn = require('./src/is/isadmin');
+const IsAdminIn = require('./is/isadmin');
 const router = express.Router();
 // GET so'rovi
 const Admin = mongoose.model('Admin', adminschema);
@@ -15,7 +15,7 @@ router.use(express.json())
 router.get('/courses/:teacherId/:cursId/:fileUrl', async (req, res) => {
   try {
     const { teacherId, cursId, fileUrl } = req.params
-    let a = (path.join(__dirname + '/src/courses/' + teacherId + "/" + cursId + "/" + fileUrl))
+    let a = (path.join(__dirname + '/courses/' + teacherId + "/" + cursId + "/" + fileUrl))
     console.log(a)
     res.sendFile(a);
   } catch (error) {
@@ -24,11 +24,11 @@ router.get('/courses/:teacherId/:cursId/:fileUrl', async (req, res) => {
 });
 router.get("/teacherPhoto/:teacherId", async (req, res) => {
   const { teacherId } = req.params
-  res.sendFile(path.join(__dirname + "/src/teacherPhoto/" + teacherId))
+  res.sendFile(path.join(__dirname + "/teacherPhoto/" + teacherId))
 })
 router.get("/uploads/:userId", async (req, res) => {
   const { userId } = req.params
-  res.sendFile(path.join(__dirname + "/src/uploads/" + userId))
+  res.sendFile(path.join(__dirname + "/uploads/" + userId))
 })
 router.post('/admin/register', async (req, res, next) => {
   const { username, password } = req.body

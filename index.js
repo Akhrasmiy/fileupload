@@ -6,10 +6,10 @@ const helmet = require('helmet');
 const fileUpload = require("express-fileupload");
 const { writeFile } = require('fs');
 const fs = require('fs/promises')
-const userRout = require("./src/users")
-const cursRout = require("./src/courssRoutes")
-const teacherRout =require('./src/teacher')
-const fileRout=require('./src/file')
+const userRout = require("./users")
+const cursRout = require("./courssRoutes")
+const teacherRout =require('./teacher')
+const fileRout=require('./file')
 const cors=require('cors')
 mongoose.connect('mongodb://127.0.0.1:27017/project', {
   useNewUrlParser: true,

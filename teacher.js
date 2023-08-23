@@ -4,7 +4,7 @@ const path = require("path")
 const bcrypt = require('bcrypt')
 const router = express.Router();
 require("dotenv/config")
-const IsLoggedIn = require("./src/is/islogedin");
+const IsLoggedIn = require("./is/islogedin");
 const jwt = require("jsonwebtoken")
 const fileUpload = require("express-fileupload");
 const { writeFile } = require('fs');
@@ -13,7 +13,7 @@ const { randomUUID } = require('crypto');
 const userschema1 = require('./moduls/userModul');
 const teacherModul = require("./moduls/teacherModul")
 const cursModul = require("./moduls/cursModul");
-const IsTeacherIn = require('./src/is/isTeacherin');
+const IsTeacherIn = require('./is/isTeacherin');
 // GET so'rovi
 router.use(express.json())
 
