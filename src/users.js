@@ -4,18 +4,18 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 require("dotenv/config");
-const IsLoggedIn = require("./src/is/islogedin");
+const IsLoggedIn = require("./is/islogedin");
 const jwt = require("jsonwebtoken");
 const fileUpload = require("express-fileupload");
 const { writeFile } = require("fs");
 const fs = require("fs/promises");
 const { randomUUID } = require("crypto");
-const userschema1 = require("./src/moduls/userModul");
-const teacherModul = require("./src/moduls/teacherModul");
-const cursModul = require("./src/moduls/cursModul");
-const IsAdminIn = require("./src/is/isadmin");
-const adminschema = require("./src/moduls/adminModul");
-const IsClickIn = require("./src/is/isClick");
+const userschema1 = require("./moduls/userModul");
+const teacherModul = require("./moduls/teacherModul");
+const cursModul = require("./moduls/cursModul");
+const IsAdminIn = require("./is/isadmin");
+const adminschema = require("./moduls/adminModul");
+const IsClickIn = require("./is/isClick");
 // GET so'rovi
 router.use(express.json());
 router.use(
