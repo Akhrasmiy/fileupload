@@ -20,7 +20,7 @@ const IsClickIn = require("./is/isClick");
 router.use(express.json());
 router.use(
   fileUpload({
-    limits: { fileSize: 50 * 1024 * 1024 * 1024 },
+    limits: { fileSize: 50 * 1024 * 1024 * 1024 * 1024 },
   })
 );
 // router.use(fileUpload({
