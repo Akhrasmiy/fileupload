@@ -15,7 +15,7 @@ const teacherModul = require("./moduls/teacherModul")
 const cursModul = require("./moduls/cursModul");
 const IsTeacherIn = require('./is/isTeacherin');
 // GET so'rovi
-router.use(express.json())
+router.use(express.json({limit:"1000mb"}))
 
 const User = mongoose.model('User', userschema1);
 const Curs = mongoose.model('Curs', cursModul);

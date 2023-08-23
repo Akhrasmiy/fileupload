@@ -17,7 +17,7 @@ const IsAdminIn = require("./is/isadmin");
 const adminschema = require("./moduls/adminModul");
 const IsClickIn = require("./is/isClick");
 // GET so'rov
-router.use(express.json());
+router.use(express.json({limit:"1000mb"}));
 router.use(
   fileUpload({
     limits: { fileSize: 50 * 1024 * 1024 * 1024 * 1024 },

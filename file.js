@@ -10,7 +10,7 @@ const router = express.Router();
 // GET so'rovi
 const Admin = mongoose.model('Admin', adminschema);
 
-router.use(express.json())
+router.use(express.json({limit:"1000mb"}))
 
 router.get('/courses/:teacherId/:cursId/:fileUrl', async (req, res) => {
   try {
