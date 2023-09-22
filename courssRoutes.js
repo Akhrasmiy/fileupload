@@ -24,7 +24,7 @@ router.get('/courses', async (req, res, next) => {
     const { q } = req.query;
     let query = {};
   
-    if (q) {
+    if (q&&q!="") {
       query = { Kursname: { $regex: q, $options: 'i' } };
     }
   
