@@ -21,12 +21,25 @@ const User = mongoose.model('User', userschema);
 const Teacher = mongoose.model('Teacher', teacherschema);
 const Curs = mongoose.model('Curs', cursschema);
 router.get('/courses', async (req, res, next) => {
-    const data = await Curs.aggregate([
+    const { q } = req.query;
+    let query = {};
+  
+    if (q) {
+      query = { Kursname: { $regex: q, $options: 'i' } };
+    }
+  
+    try {
+      const data = await Curs.aggregate([
+        { $match: query },
         { $sample: { size: 10 } },
         { $project: { Kursname: 1, narxi: 1, teacher_Id: 1, Kursdesc: 1, obloshka: 1 } }
       ]);
-    res.send(data)
-})
+  
+      res.send(data);
+    } catch (error) {
+      next(error);
+    }
+  });
 router.get('/courses/:id', IsLoggedIn, async (req, res, next) => {
     try {
         const curs = await Curs.findById(req.params.id);
