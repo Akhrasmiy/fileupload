@@ -6,6 +6,10 @@ const userschema = new mongoose.Schema({
     minlength: 3,
     maxlength: 21,
   },
+  tolovId:{
+    type:String,
+    required:true
+  },
   fullname: {
     type: String,
     required: true,

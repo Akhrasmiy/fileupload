@@ -30,6 +30,17 @@ router.use(
 const User = mongoose.model("User", userschema1);
 const Curs = mongoose.model("Curs", cursModul);
 const Teacher = mongoose.model("Teacher", teacherModul);
+
+
+async function idgenerate(){
+  const id= Math.floor(Math.random()*10**8)
+  const existId=await User.findOne({tolovId:id})
+  if(existId){
+    return(idgenerate())
+  }
+  return id
+}
+
 router.get("/users", async (req, res) => {
   try {
     const data = await User.find({});
@@ -106,7 +117,6 @@ router.post("/users/register", async (req, res, next) => {
       }
     }
   );
-
   try {
     const user = new User({
       username: req.body.username,
@@ -116,6 +126,7 @@ router.post("/users/register", async (req, res, next) => {
       email: req.body.email,
       price: 0,
       savecurss: [],
+      tolovId:await idgenerate()
     });
     const savedUser = await user.save();
     res.send(savedUser);
@@ -300,7 +311,10 @@ router.post("/users/tolov", IsAdminIn, async (req, res) => {
 router.post("/click/verify", async (req, res) => {
   try {
     const userId = req.body.merchant_trans_id;
-    let user = await User.findById(userId);
+    console.log(userId)
+    let user = await User.findOne({tolovId:userId});
+    console.log(user)
+
     if (!user) {
       res.send({
         click_trans_id: req.body.click_trans_id,
@@ -320,10 +334,12 @@ router.post("/click/verify", async (req, res) => {
     }
   } catch (error) {res.send(error)}
 });
-router.post("/click/tolov", IsClickIn, async (req, res) => {
+router.post("/click/tolov", async (req, res) => {
   try {
-
-    let user = await User.findById(req.body.merchant_trans_id);
+    const userId = req.body.merchant_trans_id;
+    console.log(userId)
+    let user = await User.findOne({tolovId:userId});
+    console.log(user)
     if (!user) {
       res.send({
         click_trans_id: req.body.click_trans_id,
@@ -333,7 +349,9 @@ router.post("/click/tolov", IsClickIn, async (req, res) => {
         error_note: "User does not exist"
       });
     }
+    console.log(req.body.amount)
     user.price = user.price + Number(req.body.amount);
+    
     user.save();
     res.send({
       click_trans_id: req.body.click_trans_id,
@@ -343,7 +361,8 @@ router.post("/click/tolov", IsClickIn, async (req, res) => {
       error_note: "Success"
     });
   } catch (error) {
-    res.send("error");
+    console.log(error)
+    res.send(error);
   }
 });
 module.exports = router;

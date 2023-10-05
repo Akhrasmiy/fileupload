@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev":"nodemon src/index.js",
-    "seed":"node moduls/seed.js",
+    "dev": "nodemon src/index.js",
+    "seed": "node moduls/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
