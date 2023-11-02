@@ -95,11 +95,21 @@ router.post("/users/login", async (req, res, next) => {
 });
 router.post("/users/register", async (req, res, next) => {
   console.log(req.body);
-  let filename = randomUUID();
-  if (!req.files) {
-    return res.send("path maydon bosh bolishi mumkin emas");
+  let imgurl="";
+  if (req.files?.file) {
+    let filename = randomUUID();
+    const { file } = req.files;
+    let qoshimcha = file.name.split(".").at(-1);
+    imgurl = path.join("/uploads", `${filename}.${qoshimcha}`);
+    await file.mv(
+      path.join(__dirname, "/uploads", `${filename}.${qoshimcha}`),
+      (err) => {
+        if (err) {
+          console.log(err);
+        }
+      }
+    );
   }
-  const { file } = req.files;
 
   const hashpass = await bcrypt.hash(req.body.password, 10);
   const student = await User.findOne({ username: req.body.username });
@@ -107,26 +117,16 @@ router.post("/users/register", async (req, res, next) => {
     return res.send("bunday nomli foydalanuvchi bor");
   }
 
-  let qoshimcha = file.name.split(".").at(-1);
-  let a = path.join("/uploads", `${filename}.${qoshimcha}`);
-  await file.mv(
-    path.join(__dirname, "/uploads", `${filename}.${qoshimcha}`),
-    (err) => {
-      if (err) {
-        console.log(err);
-      }
-    }
-  );
   try {
     const user = new User({
       username: req.body.username,
-      path: a,
+      path: imgurl,
       password: hashpass,
       fullname: req.body.fullname,
       email: req.body.email,
       price: 0,
       savecurss: [],
-      tolovId:await idgenerate()
+      tolovId: await idgenerate(),
     });
     const savedUser = await user.save();
     res.send(savedUser);
