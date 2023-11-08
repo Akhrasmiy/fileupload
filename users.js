@@ -96,20 +96,10 @@ router.post("/users/login", async (req, res, next) => {
 router.post("/users/register", async (req, res, next) => {
   console.log(req.body);
   let filename = randomUUID();
-  let image = "";
-  if (req?.files?.file) {
-    const { file } = req.files;
-    let qoshimcha = file.name.split(".").at(-1);
-    image = path.join("/uploads", `${filename}.${qoshimcha}`);
-    await file.mv(
-      path.join(__dirname, "/uploads", `${filename}.${qoshimcha}`),
-      (err) => {
-        if (err) {
-          console.log(err);
-        }
-      }
-    );
+  if (!req.files) {
+    return res.send("path maydon bosh bolishi mumkin emas");
   }
+  const { file } = req.files;
 
   const hashpass = await bcrypt.hash(req.body.password, 10);
   const student = await User.findOne({ username: req.body.username });
@@ -120,7 +110,7 @@ router.post("/users/register", async (req, res, next) => {
   try {
     const user = new User({
       username: req.body.username,
-      path: image,
+      path: a,
       password: hashpass,
       fullname: req.body.fullname,
       email: req.body.email,
