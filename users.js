@@ -16,8 +16,9 @@ const cursModul = require("./moduls/cursModul");
 const IsAdminIn = require("./is/isadmin");
 const adminschema = require("./moduls/adminModul");
 const IsClickIn = require("./is/isClick");
+const { error } = require("console");
 // GET so'rov
-router.use(express.json({limit:"1000mb"}));
+router.use(express.json({ limit: "1000mb" }));
 router.use(
   fileUpload({
     limits: { fileSize: 50 * 1024 * 1024 * 1024 * 1024 },
@@ -31,14 +32,13 @@ const User = mongoose.model("User", userschema1);
 const Curs = mongoose.model("Curs", cursModul);
 const Teacher = mongoose.model("Teacher", teacherModul);
 
-
-async function idgenerate(){
-  const id= Math.floor(Math.random()*10**8)
-  const existId=await User.findOne({tolovId:id})
-  if(existId){
-    return(idgenerate())
+async function idgenerate() {
+  const id = Math.floor(Math.random() * 10 ** 8);
+  const existId = await User.findOne({ tolovId: id });
+  if (existId) {
+    return idgenerate();
   }
-  return id
+  return id;
 }
 
 router.get("/users", async (req, res) => {
@@ -96,10 +96,20 @@ router.post("/users/login", async (req, res, next) => {
 router.post("/users/register", async (req, res, next) => {
   console.log(req.body);
   let filename = randomUUID();
-  if (!req.files) {
-    return res.send("path maydon bosh bolishi mumkin emas");
+  let image = "";
+  if (req?.files?.file) {
+    const { file } = req.files;
+    let qoshimcha = file.name.split(".").at(-1);
+    image = path.join("/uploads", `${filename}.${qoshimcha}`);
+    await file.mv(
+      path.join(__dirname, "/uploads", `${filename}.${qoshimcha}`),
+      (err) => {
+        if (err) {
+          console.log(err);
+        }
+      }
+    );
   }
-  const { file } = req.files;
 
   const hashpass = await bcrypt.hash(req.body.password, 10);
   const student = await User.findOne({ username: req.body.username });
@@ -107,26 +117,16 @@ router.post("/users/register", async (req, res, next) => {
     return res.send("bunday nomli foydalanuvchi bor");
   }
 
-  let qoshimcha = file.name.split(".").at(-1);
-  let a = path.join("/uploads", `${filename}.${qoshimcha}`);
-  await file.mv(
-    path.join(__dirname, "/uploads", `${filename}.${qoshimcha}`),
-    (err) => {
-      if (err) {
-        console.log(err);
-      }
-    }
-  );
   try {
     const user = new User({
       username: req.body.username,
-      path: a,
+      path: image,
       password: hashpass,
       fullname: req.body.fullname,
       email: req.body.email,
       price: 0,
       savecurss: [],
-      tolovId:await idgenerate()
+      tolovId: await idgenerate(),
     });
     const savedUser = await user.save();
     res.send(savedUser);
@@ -138,31 +138,57 @@ router.post("/users/register", async (req, res, next) => {
 router.put("/users/", IsLoggedIn, async (req, res, next) => {
   try {
     const id = req.user.userId;
-    const { file } = req.files;
-    const { username, fullname, email, password } = req.body;
-    let hashpass = await bcrypt.hash(password, 10);
+    const { username, fullname } = req.body;
     const user = await User.findById(id);
-
-    const exituser = await User.findOne({ username: username });
-    if (exituser) {
-      return res.send("bu nomdagi foydalanuvchi mavjud");
+    user.fullname = fullname;
+    console.log(req.files);
+    if (req?.files?.file) {
+      console.log("a");
+      if (user.path == "") {
+        const { file } = req.files;
+        let qoshimcha = file.name.split(".").at(-1);
+        image = path.join("/uploads", `${user._id}.${qoshimcha}`);
+        await file.mv(
+          path.join(__dirname, "/uploads", `${user._id}.${qoshimcha}`),
+          (err) => {
+            if (err) {
+              console.log(err);
+            }
+          }
+        );
+        user.path = image;
+      } else {
+        await fs
+          .unlink(path.join(__dirname, user.path), (err) => {
+            if (err) {
+              console.log(err);
+            }
+            console.log("deleted");
+          })
+          .then(console.log("deleted"));
+          const { file } = req.files;
+          let qoshimcha = file.name.split(".").at(-1);
+          image = path.join("/uploads", `${user._id}.${qoshimcha}`);
+          await file.mv(
+            path.join(__dirname, "/uploads", `${user._id}.${qoshimcha}`),
+            (err) => {
+              if (err) {
+                console.log(err);
+              }
+            }
+          );
+          user.path = image;
+      }
+    }
+    if (username !== user.username) {
+      let existuser = await User.findOne({ username: username });
+      if (existuser) throw new error("bu nomdagi user mavjud");
+      else {
+        user.username = username;
+      }
     }
 
-    await file.mv(path.join(user.path));
-
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      {
-        username,
-        fullname,
-        path: user.path,
-        email,
-        price: user.price,
-        password: hashpass,
-      },
-      { new: true }
-    );
-
+    const updatedUser = await user.save();
     res.send(updatedUser);
     next();
   } catch (error) {
@@ -311,9 +337,9 @@ router.post("/users/tolov", IsAdminIn, async (req, res) => {
 router.post("/click/verify", async (req, res) => {
   try {
     const userId = req.body.merchant_trans_id;
-    console.log(userId)
-    let user = await User.findOne({tolovId:userId});
-    console.log(user)
+    console.log(userId);
+    let user = await User.findOne({ tolovId: userId });
+    console.log(user);
 
     if (!user) {
       res.send({
@@ -321,7 +347,7 @@ router.post("/click/verify", async (req, res) => {
         merchant_trans_id: req.body.merchant_trans_id,
         merchant_prepare_id: req.body.merchant_trans_id,
         error: -5,
-        error_note: "User does not exist"
+        error_note: "User does not exist",
       });
     } else {
       res.send({
@@ -329,39 +355,41 @@ router.post("/click/verify", async (req, res) => {
         merchant_trans_id: req.body.merchant_trans_id,
         merchant_prepare_id: req.body.merchant_trans_id,
         error: 0,
-        error_note: "Success"
+        error_note: "Success",
       });
     }
-  } catch (error) {res.send(error)}
+  } catch (error) {
+    res.send(error);
+  }
 });
 router.post("/click/tolov", async (req, res) => {
   try {
     const userId = req.body.merchant_trans_id;
-    console.log(userId)
-    let user = await User.findOne({tolovId:userId});
-    console.log(user)
+    console.log(userId);
+    let user = await User.findOne({ tolovId: userId });
+    console.log(user);
     if (!user) {
       res.send({
         click_trans_id: req.body.click_trans_id,
         merchant_trans_id: req.body.merchant_trans_id,
         merchant_prepare_id: req.body.merchant_trans_id,
         error: -5,
-        error_note: "User does not exist"
+        error_note: "User does not exist",
       });
     }
-    console.log(req.body.amount)
+    console.log(req.body.amount);
     user.price = user.price + Number(req.body.amount);
-    
+
     user.save();
     res.send({
       click_trans_id: req.body.click_trans_id,
       merchant_trans_id: req.body.merchant_trans_id,
       merchant_prepare_id: req.body.merchant_trans_id,
       error: 0,
-      error_note: "Success"
+      error_note: "Success",
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.send(error);
   }
 });
