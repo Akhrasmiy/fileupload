@@ -151,9 +151,8 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
             if (err) {
               console.log(err);
             }
-            console.log("deleted");
           })
-          .then(console.log("deleted"));
+          .then();
           const { file } = req.files;
           let qoshimcha = file.name.split(".").at(-1);
           image = path.join("/uploads", `${user._id}.${qoshimcha}`);
@@ -171,7 +170,7 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
     if (username !== user.username) {
       let existuser = await User.findOne({ username: username });
       if (existuser) {
-        return res.sendStatus(400).json({msg:"bunday foydalanivchi bor"})
+        return res.send("bunday foydalanuchi mavjud")
       }
       else {
         user.username = username;
