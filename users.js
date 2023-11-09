@@ -96,10 +96,8 @@ router.post("/users/login", async (req, res, next) => {
 router.post("/users/register", async (req, res, next) => {
   console.log(req.body);
   let filename = randomUUID();
-  if (!req.files) {
-    return res.send("path maydon bosh bolishi mumkin emas");
-  }
-  const { file } = req.files;
+  let image=""
+  
 
   const hashpass = await bcrypt.hash(req.body.password, 10);
   const student = await User.findOne({ username: req.body.username });
@@ -110,7 +108,7 @@ router.post("/users/register", async (req, res, next) => {
   try {
     const user = new User({
       username: req.body.username,
-      path: a,
+      path: image,
       password: hashpass,
       fullname: req.body.fullname,
       email: req.body.email,
@@ -172,7 +170,9 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
     }
     if (username !== user.username) {
       let existuser = await User.findOne({ username: username });
-      if (existuser) throw new error("bu nomdagi user mavjud");
+      if (existuser) {
+        return res.sendStatus(400).json({msg:"bunday foydalanivchi bor"})
+      }
       else {
         user.username = username;
       }
