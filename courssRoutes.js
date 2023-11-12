@@ -245,46 +245,31 @@ router.post("/courses/commint", IsLoggedIn, async (req, res, next) => {
   }
 });
 router.put("/courses/:id", IsTeacherIn, async (req, res, next) => {
-  const { name, vediosname, vediosdesc, desc, narxi, muddati } = req.body;
-  let vedios = [];
-  const curskk = await Curs.findById(req.params.id);
-  if (curskk.teacher_Id == req.teacher.teacherId) {
-    const folder = path.join(__dirname, "courses", req.teacher.teacherId, name);
-    await fss.remove(folder);
-    let { obloshka } = req.files;
-    let obqoshimcha = obloshka.name.split(".").at(-1);
-    const location = path.join(folder, `obloshka.${obqoshimcha}`);
-    await fs.mkdir(folder, { recursive: true });
-    await fs.writeFile(location, obloshka.data);
-    for (let i = 0; i < req.files.file.length; i++) {
-      let file = req.files.file[i];
-      let qoshimcha = file.name.split(".").at(-1);
+  const { name, vediosname, vediosdesc, desc, narxi, muddati,isOpen } = req.body;
+  const curs = await Curs.findById(req.params.id);
+  if (curs.teacher_Id == req.teacher.teacherId) {
+    curs.Kursname=name
+    curs.Kursdesc=desc
+    curs.narxi=narxi
+    curs.muddati=muddati
+    let i=0
+    curs.vedios.forEach(vedio => {
+      vedio.nomi=vediosname[i]
+      vedio.desc=vediosdesc[i]
+      if(isOpen[i]=="true"||isOpen[i]=="True")
+      {
+        isOpen[i]=true
+      }
+      else{
+        isOpen[i]=false
+      }
 
-      const location = path.join(folder, `${randomUUID()}.${qoshimcha}`);
-      console.log(location);
-      vedios.push({
-        nomi: vediosname[i],
-        desc: vediosdesc[i],
-        orni: location,
-      });
-      await fs.mkdir(folder, { recursive: true });
-      await fs.writeFile(location, file.data);
-    }
-    try {
-      curskk.vedios = vedios;
-      curskk.obloshka = location;
-      curskk.name = name;
-      curskk.desc = desc;
-      curskk.narxi = narxi;
-      curskk.muddati = muddati;
-      curskk.save();
-      res.send(curskk);
-      next();
-    } catch (error) {
-      res.status(500).send(error);
-    }
+      i=i+1
+    });
+    curs.save()
+    res.send(curs)
   } else {
-    res.send("ruxsat yoq");
+    res.send("ruxsat yoq2");
   }
 });
 module.exports = router;
