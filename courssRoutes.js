@@ -176,18 +176,18 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
       }
 
       try {
-        let treelerorni=""
-        if(req.files.treeler){
-           treelerorni= path.join(
-                "courses/" +
-                  req.teacher.teacherId +
-                  "/" +
-                  name +
-                  "/" +
-                  `treeler.${treelerqoshimcha}`
-              )
+        let treelerorni = "";
+        if (req.files.treeler) {
+          treelerorni = path.join(
+            "courses/" +
+              req.teacher.teacherId +
+              "/" +
+              name +
+              "/" +
+              `treeler.${treelerqoshimcha}`
+          );
         }
-        
+
         const curs = new Curs({
           Kursname: name,
           obloshka: path.join(
@@ -245,29 +245,30 @@ router.post("/courses/commint", IsLoggedIn, async (req, res, next) => {
   }
 });
 router.put("/courses/:id", IsTeacherIn, async (req, res, next) => {
-  const { name, vediosname, vediosdesc, desc, narxi, muddati,isOpen } = req.body;
+  const { name, vediosname, vediosdesc, desc, narxi, muddati, isOpen } =
+    req.body;
   const curs = await Curs.findById(req.params.id);
   if (curs.teacher_Id == req.teacher.teacherId) {
-    curs.Kursname=name
-    curs.Kursdesc=desc
-    curs.narxi=narxi
-    curs.muddati=muddati
-    let i=0
-    curs.vedios.forEach(vedio => {
-      vedio.nomi=vediosname[i]
-      vedio.desc=vediosdesc[i]
-      if(isOpen[i]=="true"||isOpen[i]=="True")
-      {
-        isOpen[i]=true
-      }
-      else{
-        isOpen[i]=false
-      }
+    try {
+      curs.Kursname = name;
+      curs.Kursdesc = desc;
+      curs.narxi = narxi;
+      curs.muddati = muddati;
+      let i = 0;
+      curs.vedios.forEach((vedio) => {
+        vedio.nomi = vediosname[i];
+        vedio.desc = vediosdesc[i];
+        if (isOpen[i] == "true" || isOpen[i] == "True") {
+          isOpen[i] = true;
+        } else {
+          isOpen[i] = false;
+        }
 
-      i=i+1
-    });
-    await curs.save()
-    res.send(curs)
+        i = i + 1;
+      });
+      await curs.save();
+      res.send(curs);
+    } catch (error) {res.send(curs).status(400)}
   } else {
     res.send("ruxsat yoq2");
   }
