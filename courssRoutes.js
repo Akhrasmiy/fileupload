@@ -266,7 +266,7 @@ router.put("/courses/:id", IsTeacherIn, async (req, res, next) => {
 
       i=i+1
     });
-    curs.save()
+    await curs.save()
     res.send(curs)
   } else {
     res.send("ruxsat yoq2");
