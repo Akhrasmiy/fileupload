@@ -42,5 +42,6 @@ const teacherschema = new mongoose.Schema({
     boglashlink: {
       type: String
     },
+    obunachilar:[String],
   });
   module.exports =teacherschema

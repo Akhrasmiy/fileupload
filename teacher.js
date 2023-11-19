@@ -15,6 +15,7 @@ const teacherModul = require("./moduls/teacherModul");
 const cursModul = require("./moduls/cursModul");
 const IsTeacherIn = require("./is/isTeacherin");
 const { exists } = require("fs-extra");
+const IsAdminIn = require("./is/isadmin");
 // GET so'rovi
 router.use(express.json({ limit: "1000mb" }));
 
@@ -218,7 +219,7 @@ router.put("/teacher/", IsTeacherIn, async (req, res) => {
   }
 });
 
-router.delete("/teacher/:id", async (req, res) => {
+router.delete("/teacher/:id",IsAdminIn, async (req, res) => {
   try {
     const deletedTeacher = await Teacher.findByIdAndDelete(req.params.id);
     if (!deletedTeacher) {

@@ -247,14 +247,13 @@ router.post("/users/obuna", IsLoggedIn, async (req, res) => {
   if (!teacher) {
     return res.send("bunday teacher mavjud emas");
   }
-  if (teacher.obunachilar.includes(req.body.teacher_Id)) {
+  if (teacher.obunachilar.includes(user.id)) {
     teacher.obunachilar.splice(
-      teacher.obunachilar.indexOf(req.body.teacher_Id),
-      1
+      teacher.obunachilar.indexOf(user.id),1
     );
     user.teachers.splice(user.teachers.indexOf(req.body.teacher_Id), 1);
   } else {
-    teacher.obunachilar.push(req.body.teacher_Id);
+    teacher.obunachilar.push(user.id);
     user.teachers.push(req.body.teacher_Id);
   }
   user.save();
