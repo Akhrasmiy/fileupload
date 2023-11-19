@@ -35,7 +35,8 @@ const cursschema = new mongoose.Schema({
   },
   Comments: [
     {
-      userid: String,
+      userPath: String,
+      username: String,
       text: String,
     },
   ],

@@ -230,8 +230,10 @@ router.post("/courses/commint", IsLoggedIn, async (req, res, next) => {
     const curs = await Curs.findById(cursId);
     console.log("b");
     if (curs.subs.includes(req.user.userId)) {
+      const user =await User.findById(req.user.userId)
       curs.Comments.push({
-        userid: req.user.userId,
+        userPath: user.path,
+        username:user.fullname,
         text: req.body.text,
       });
       curs.save();
