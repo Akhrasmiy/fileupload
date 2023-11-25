@@ -40,7 +40,10 @@ async function idgenerate() {
   }
   return id;
 }
-
+router.get("/usersalltrue",async(req,res)=>{
+  await User.updateMany({},{$set:{isverify:true}})
+  return res.send("0")
+})
 router.get("/users", async (req, res) => {
   try {
     const data = await User.find({});
