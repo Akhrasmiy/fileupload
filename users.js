@@ -98,8 +98,7 @@ router.post("/users/register", async (req, res, next) => {
   let filename = randomUUID();
   let image=""
   const code=Math.floor(Math.random()*10**6)
-  await User.updateMany({},{$set:{isverify:true}})
-  return res.send("0")
+  
   const hashpass = await bcrypt.hash(req.body.password, 10);
   const student = await User.findOne({ username: req.body.username ,isverify:true});
   if (student) {
