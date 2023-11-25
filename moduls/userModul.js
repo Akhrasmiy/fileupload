@@ -38,6 +38,13 @@ const userschema = new mongoose.Schema({
     qachongacha: Number,
     olinganVaqt: Number,
   }],
-  savecurss: Array
+  savecurss: Array,
+  isverify:{
+    type:Boolean,
+    default:false
+  },
+  sendEmail:{
+    type:Number,
+  }
 })
 module.exports = userschema
