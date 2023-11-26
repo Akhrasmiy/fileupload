@@ -43,5 +43,12 @@ const teacherschema = new mongoose.Schema({
       type: String
     },
     obunachilar:[String],
+    isverify:{
+      type:Boolean,
+      default:false
+    },
+    sendEmail:{
+      type:Number,
+    }
   });
   module.exports =teacherschema
