@@ -100,7 +100,6 @@ router.post("/users/login", async (req, res, next) => {
 });
 router.post("/users/register", async (req, res, next) => {
   console.log(req.body);
-  let filename = randomUUID();
   let image = "";
   const code = Math.floor(Math.random() * 10 ** 6);
   if(!req.body.email){
@@ -164,7 +163,10 @@ router.post("/users/register", async (req, res, next) => {
 router.post("/users/register/verify", async (req, res, next) => {
     const {code,email}=req.body
 
-    const existuser=await User.findOne({email:email})
+    const existuser=await User.findOne({email:email,isverify:false})
+    if(!existuser){
+      res.sendStatus(404)("bunday user yoq")
+    }
     console.log(code,existuser.sendEmail);
 
     if(existuser.sendEmail==code){

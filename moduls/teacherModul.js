@@ -47,7 +47,7 @@ const teacherschema = new mongoose.Schema({
       type:Boolean,
       default:false
     },
-    sendEmail:{
+    sendEmailCode:{
       type:Number,
     }
   });

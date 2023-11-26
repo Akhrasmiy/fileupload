@@ -16,6 +16,7 @@ const cursModul = require("./moduls/cursModul");
 const IsTeacherIn = require("./is/isTeacherin");
 const { exists } = require("fs-extra");
 const IsAdminIn = require("./is/isadmin");
+const sendEmail = require("./serves/Sendmessange");
 // GET so'rovi
 router.use(express.json({ limit: "1000mb" }));
 
@@ -38,7 +39,7 @@ router.post("/teacher/login", async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
-    const teacher = await Teacher.findOne({ username: req.body.username });
+    const teacher = await Teacher.findOne({ username: req.body.username ,isverify:true });
 
     if (!teacher) {
       return res.status(400).json({ message: "Noto'g'ri username yoki parol" });
@@ -101,13 +102,29 @@ router.get("/teacher-mycurs", IsTeacherIn, async (req, res) => {
 });
 router.post("/teacher/register", async (req, res) => {
   try {
-    const existingTeacher = await Teacher.findOne({
-      username: req.body.username,
-    });
-    console.log(existingTeacher);
-    if (!req.body.password) {
+    if (!req.body.password || !req.body.email) {
       return res.send("password requard");
     }
+    const existingTeacher = await Teacher.findOne({
+      username: req.body.username,
+      isverify: true,
+    });
+    const existing1Teacher = await Teacher.findOne({
+      email: req.body.email,
+      isverify: false,
+    });
+    const existing2Teacher = await Teacher.findOne({
+      username: req.body.username,
+      isverify: false,
+    });
+    if (existing1Teacher || existing2Teacher) {
+      await Teacher.deleteMany({
+        username: req.body.username,
+        isverify: false,
+      });
+      await Teacher.deleteMany({ email: req.body.email, isverify: false });
+    }
+
     const {
       bio,
       mutahasislik,
@@ -118,6 +135,12 @@ router.post("/teacher/register", async (req, res) => {
       email,
       boglashlink,
     } = req.body;
+    const code = Math.floor(Math.random() * 10 ** 6);
+
+    const b = await sendEmail(req.body.email, code);
+    if (b == "xatolik") {
+      return res.send("emailga kod yuborishda hatolik");
+    }
     const hashpass = await bcrypt.hash(password, 10);
     let filePath = "";
     if (!existingTeacher) {
@@ -134,9 +157,11 @@ router.post("/teacher/register", async (req, res) => {
         joylashuv,
         mutahasislik,
         boglashlink,
+        sendEmailCode: code,
+        isverify: false,
       });
       const savedTeacher = await teacher.save();
-      res.send(savedTeacher);
+      res.send({ email: email });
     } else {
       res.send("bunday foydalanuvchi bor");
     }
@@ -145,6 +170,25 @@ router.post("/teacher/register", async (req, res) => {
     res.status(501).send("Internal server error");
   }
 });
+router.post("/teacher/register/verify", async (req, res) => {
+  const {code,email}=req.body
+
+    const existuser=await Teacher.findOne({email:email,isverify:false})
+    if(!existuser){
+      res.sendStatus(404)("bunday user yoq")
+    }
+    console.log(code,existuser.sendEmailCode);
+
+    if(existuser.sendEmailCode==code){
+      existuser.isverify=true
+      existuser.save()
+      return res.send(existuser)
+
+    }
+    else{
+      return res.send("kod xato").status(404)
+    }
+})
 
 router.put("/teacher/", IsTeacherIn, async (req, res) => {
   try {
@@ -169,7 +213,7 @@ router.put("/teacher/", IsTeacherIn, async (req, res) => {
       console.log("a");
       if (teacher.path == "") {
         const { file } = req.files;
-        console.log(file)
+        console.log(file);
         let qoshimcha = file.name.split(".").at(-1);
         image = path.join("/teacherPhoto", `${teacher._id}.${qoshimcha}`);
         await file.mv(
@@ -188,8 +232,8 @@ router.put("/teacher/", IsTeacherIn, async (req, res) => {
               console.log(err);
             }
           })
-          .then().catch(
-          );
+          .then()
+          .catch();
         const { file } = req.files;
         let qoshimcha = file.name.split(".").at(-1);
         let hoy = path.join("/teacher", `${teacher._id}.${qoshimcha}`);
@@ -201,25 +245,23 @@ router.put("/teacher/", IsTeacherIn, async (req, res) => {
             }
           }
         );
-        image=hoy
+        image = hoy;
         teacher.path = image;
       }
       await teacher.save();
       res.send(teacher);
-    }
-    else{
-      teacher.path=""
+    } else {
+      teacher.path = "";
     }
     await teacher.save();
     res.send(teacher);
   } catch (error) {
-    
-    throw new error("error")
+    throw new error("error");
     console.log(error);
   }
 });
 
-router.delete("/teacher/:id",IsAdminIn, async (req, res) => {
+router.delete("/teacher/:id", IsAdminIn, async (req, res) => {
   try {
     const deletedTeacher = await Teacher.findByIdAndDelete(req.params.id);
     if (!deletedTeacher) {
