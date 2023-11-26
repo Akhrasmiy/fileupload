@@ -44,5 +44,9 @@ const cursschema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  profit:{
+    type:Number,
+    default:0
+  }
 });
 module.exports = cursschema;

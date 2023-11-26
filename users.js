@@ -182,19 +182,26 @@ router.post("/users/register/verify", async (req, res, next) => {
 
 router.put("/users/", IsLoggedIn, async (req, res, next) => {
   try {
+    const{username,fullname}=req.body
     const id = req.user.userId;
-    const { username, fullname } = req.body;
     const user = await User.findById(id);
-    user.fullname = fullname;
-    console.log(req.files);
+    if(user.username!=username){
+      const existuser = await User.findOne({username:username});
+      if(existuser){
+        res.status(400).json({error:"bunday user mavjud"})
+      }
+      user.username=username
+    }
+    user.fullname=fullname
+
     if (req?.files?.file) {
       console.log("a");
       if (user.path == "") {
         const { file } = req.files;
         let qoshimcha = file.name.split(".").at(-1);
-        image = path.join("/uploads", `${user._id}.${qoshimcha}`);
+        image = path.join("/teacherPhoto", `${user._id}.${qoshimcha}`);
         await file.mv(
-          path.join(__dirname, "/uploads", `${user._id}.${qoshimcha}`),
+          path.join(__dirname, "/teacherPhoto", `${user._id}.${qoshimcha}`),
           (err) => {
             if (err) {
               console.log(err);
@@ -203,18 +210,11 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
         );
         user.path = image;
       } else {
-        await fs
-          .unlink(path.join(__dirname, user.path), (err) => {
-            if (err) {
-              console.log(err);
-            }
-          })
-          .then();
         const { file } = req.files;
         let qoshimcha = file.name.split(".").at(-1);
-        image = path.join("/uploads", `${user._id}.${qoshimcha}`);
+        image = path.join("/teacherPhoto", `${user._id}.${qoshimcha}`);
         await file.mv(
-          path.join(__dirname, "/uploads", `${user._id}.${qoshimcha}`),
+          path.join(__dirname, "/teacherphoto", `${user._id}.${qoshimcha}`),
           (err) => {
             if (err) {
               console.log(err);
@@ -222,24 +222,57 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
           }
         );
         user.path = image;
-      }
-    }
-    if (username !== user.username) {
-      let existuser = await User.findOne({ username: username });
-      if (existuser) {
-        return res.send("bunday foydalanuchi mavjud");
-      } else {
-        user.username = username;
       }
     }
 
-    const updatedUser = await user.save();
-    res.send(updatedUser);
-    next();
+
+
+    await user.save()
+    res.send(user)
   } catch (error) {
     res.status(500).send(error);
   }
 });
+router.post("/userseditimg", IsLoggedIn, async (req, res, next) => {
+  
+  const id = req.user.userId;
+  const user = await User.findById(id);
+  if (req?.files?.file) {
+    console.log("a");
+    if (user.path == "") {
+      const { file } = req.files;
+      let qoshimcha = file.name.split(".").at(-1);
+      image = path.join("/teacherPhoto", `${user._id}.${qoshimcha}`);
+      await file.mv(
+        path.join(__dirname, "/teacherPhoto", `${user._id}.${qoshimcha}`),
+        (err) => {
+          if (err) {
+            console.log(err);
+          }
+        }
+      );
+      user.path = image;
+    } else {
+      const { file } = req.files;
+      let qoshimcha = file.name.split(".").at(-1);
+      image = path.join("/teacherPhoto", `${user._id}.${qoshimcha}`);
+      await file.mv(
+        path.join(__dirname, "/teacherphoto", `${user._id}.${qoshimcha}`),
+        (err) => {
+          if (err) {
+            console.log(err);
+          }
+        }
+      );
+      user.path = image;
+    }
+   await user.save()
+   res.send(user)
+  }
+  else{
+    res.send("fayl yuborish majburiy")
+  }
+})
 router.post("/baycurs", IsLoggedIn, async (req, res, next) => {
   try {
     const { cursId } = req.body;
@@ -259,6 +292,7 @@ router.post("/baycurs", IsLoggedIn, async (req, res, next) => {
     if (user.price >= curs.narxi) {
       user.price = Number(user.price) - Number(curs.narxi);
       teacher.hisob = Number(teacher.hisob) + Number(curs.narxi) * 0.8;
+      curs.profit=Number(curs.profit)+Number(curs.narxi)
       admin.hisobi = Number(admin.hisobi) + Number(curs.narxi) * 0.2;
       curs.subs.push(req.user.userId);
       user.mycurs.push({
