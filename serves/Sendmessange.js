@@ -1,5 +1,4 @@
 const nodeMailer = require("nodemailer");
-const { BadRequestError } = require("../shared/errors");
 
 const sendEmail = async (email, password) => {
   const transporter = await nodeMailer.createTransport({
@@ -17,12 +16,12 @@ const sendEmail = async (email, password) => {
       from: "infoilmlar@gmail.com",
       to: email,
       subject: "tasdiqlash kodi",
-      html: "<h1>${password}<h1>",
+      html: `<h1>${password}<h1>`,
     });
     return info.messageId;
   } catch (error) {
     console.log(error);
-    throw new BadRequestError("kod yuborishda hatolik");
+    return "xatolik"
   }
 };
 

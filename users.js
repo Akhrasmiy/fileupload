@@ -16,7 +16,8 @@ const cursModul = require("./moduls/cursModul");
 const IsAdminIn = require("./is/isadmin");
 const adminschema = require("./moduls/adminModul");
 const IsClickIn = require("./is/isClick");
-const { error } = require("console");
+const { error, log } = require("console");
+const sendEmail = require("./serves/Sendmessange");
 // GET so'rov
 router.use(express.json({ limit: "1000mb" }));
 router.use(
@@ -40,10 +41,10 @@ async function idgenerate() {
   }
   return id;
 }
-router.get("/usersalltrue",async(req,res)=>{
-  await User.updateMany({},{$set:{isverify:true}})
-  return res.send("0")
-})
+router.get("/usersalltrue", async (req, res) => {
+  await User.updateMany({}, { $set: { isverify: true } });
+  return res.send("0");
+});
 router.get("/users", async (req, res) => {
   try {
     const data = await User.find({});
@@ -72,7 +73,7 @@ router.post("/users/login", async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
-    const user = await User.findOne({ username: req.body.username });
+    const user = await User.findOne({ username: req.body.username,isverify:true });
 
     if (!user) {
       return res
@@ -99,13 +100,43 @@ router.post("/users/login", async (req, res, next) => {
 router.post("/users/register", async (req, res, next) => {
   console.log(req.body);
   let filename = randomUUID();
-  let image=""
-  const code=Math.floor(Math.random()*10**6)
+  let image = "";
+  const code = Math.floor(Math.random() * 10 ** 6);
+  if(!req.body.email){
+   res.send("email majburiy").status("404")
+  }
+   const b= await sendEmail(req.body.email, code);
+   if(b=="xatolik"){
+    return res.send("emailga kod yuborishda hatolik")
+   }
   
   const hashpass = await bcrypt.hash(req.body.password, 10);
-  const student = await User.findOne({ username: req.body.username ,isverify:true});
+  const student = await User.findOne({
+    username: req.body.username,
+    isverify: true,
+  });
   if (student) {
     return res.send("bunday nomli foydalanuvchi bor");
+  }
+  const nostudent = await User.findOne({
+    username: req.body.username,
+    isverify: false,
+  });
+  if (nostudent) {
+    await User.deleteMany({
+      username: req.body.username,
+      isverify: false,
+    })
+  }
+  const notstudent = await User.findOne({
+    email: req.body.email,
+    isverify: false,
+  });
+  if (notstudent) {
+   await User.deleteMany({
+      email: req.body.email,
+      isverify: false,
+    })
   }
 
   try {
@@ -116,16 +147,36 @@ router.post("/users/register", async (req, res, next) => {
       fullname: req.body.fullname,
       email: req.body.email,
       price: 0,
+      sendEmail:code,
       savecurss: [],
+      isverify:false,
       tolovId: await idgenerate(),
     });
     const savedUser = await user.save();
-    res.send(savedUser);
+    res.send({email:req.body.email});
     next();
   } catch (error) {
     res.status(500).send(error);
   }
 });
+
+router.post("/users/register/verify", async (req, res, next) => {
+    const {code,email}=req.body
+
+    const existuser=await User.findOne({email:email})
+    console.log(code,existuser.sendEmail);
+
+    if(existuser.sendEmail==code){
+      existuser.isverify=true
+      existuser.save()
+      return res.send(existuser)
+
+    }
+    else{
+      return res.send("kod xato").status(404)
+    }
+})
+
 router.put("/users/", IsLoggedIn, async (req, res, next) => {
   try {
     const id = req.user.userId;
@@ -156,26 +207,25 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
             }
           })
           .then();
-          const { file } = req.files;
-          let qoshimcha = file.name.split(".").at(-1);
-          image = path.join("/uploads", `${user._id}.${qoshimcha}`);
-          await file.mv(
-            path.join(__dirname, "/uploads", `${user._id}.${qoshimcha}`),
-            (err) => {
-              if (err) {
-                console.log(err);
-              }
+        const { file } = req.files;
+        let qoshimcha = file.name.split(".").at(-1);
+        image = path.join("/uploads", `${user._id}.${qoshimcha}`);
+        await file.mv(
+          path.join(__dirname, "/uploads", `${user._id}.${qoshimcha}`),
+          (err) => {
+            if (err) {
+              console.log(err);
             }
-          );
-          user.path = image;
+          }
+        );
+        user.path = image;
       }
     }
     if (username !== user.username) {
       let existuser = await User.findOne({ username: username });
       if (existuser) {
-        return res.send("bunday foydalanuchi mavjud")
-      }
-      else {
+        return res.send("bunday foydalanuchi mavjud");
+      } else {
         user.username = username;
       }
     }
@@ -251,9 +301,7 @@ router.post("/users/obuna", IsLoggedIn, async (req, res) => {
     return res.send("bunday teacher mavjud emas");
   }
   if (teacher.obunachilar.includes(user.id)) {
-    teacher.obunachilar.splice(
-      teacher.obunachilar.indexOf(user.id),1
-    );
+    teacher.obunachilar.splice(teacher.obunachilar.indexOf(user.id), 1);
     user.teachers.splice(user.teachers.indexOf(req.body.teacher_Id), 1);
   } else {
     teacher.obunachilar.push(user.id);
