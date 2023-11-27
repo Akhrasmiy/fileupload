@@ -24,6 +24,7 @@ router.get('/courses/:teacherId/:cursId/:fileUrl', async (req, res) => {
 });
 router.get("/teacherPhoto/:teacherId", async (req, res) => {
   const { teacherId } = req.params
+  console.log(__dirname);
   res.sendFile(path.join(__dirname + "/teacherPhoto/" + teacherId))
 })
 router.get("/uploads/:userId", async (req, res) => {

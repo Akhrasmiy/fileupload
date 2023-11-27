@@ -213,30 +213,9 @@ router.put("/teacher/", IsTeacherIn, async (req, res) => {
       console.log("a");
       if (teacher.path == "") {
         const { file } = req.files;
-        console.log(file);
+        console.log(file)
         let qoshimcha = file.name.split(".").at(-1);
-        image = path.join("/teacherPhoto", `${teacher._id}.${qoshimcha}`);
-        await file.mv(
-          path.join(__dirname, "/teacherPhoto", `${teacher._id}.${qoshimcha}`),
-          (err) => {
-            if (err) {
-              console.log(err);
-            }
-          }
-        );
-        teacher.path = image;
-      } else {
-        await fs
-          .unlink(path.join(__dirname, teacher.path), (err) => {
-            if (err) {
-              console.log(err);
-            }
-          })
-          .then()
-          .catch();
-        const { file } = req.files;
-        let qoshimcha = file.name.split(".").at(-1);
-        let hoy = path.join("/teacher", `${teacher._id}.${qoshimcha}`);
+        image = path.join("/uploads", `${teacher._id}.${qoshimcha}`);
         await file.mv(
           path.join(__dirname, "/uploads", `${teacher._id}.${qoshimcha}`),
           (err) => {
@@ -245,18 +224,33 @@ router.put("/teacher/", IsTeacherIn, async (req, res) => {
             }
           }
         );
-        image = hoy;
+        teacher.path = image;
+      } else {
+        const { file } = req.files;
+        let qoshimcha = file.name.split(".").at(-1);
+        let hoy = path.join("/uploads", `${teacher._id}.${qoshimcha}`);
+        await file.mv(
+          path.join(__dirname, "/uploads", `${teacher._id}.${qoshimcha}`),
+          (err) => {
+            if (err) {
+              console.log(err);
+            }
+          }
+        );
+        image=hoy
         teacher.path = image;
       }
       await teacher.save();
       res.send(teacher);
-    } else {
-      teacher.path = "";
+    }
+    else{
+      teacher.path=""
     }
     await teacher.save();
     res.send(teacher);
   } catch (error) {
-    throw new error("error");
+    
+    throw new error("error")
     console.log(error);
   }
 });
