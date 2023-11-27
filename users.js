@@ -199,9 +199,9 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
       if (user.path == "") {
         const { file } = req.files;
         let qoshimcha = file.name.split(".").at(-1);
-        image = path.join("/teacherPhoto", `${user._id}.${qoshimcha}`);
+        image = path.join("/uploads", `${user._id}.${qoshimcha}`);
         await file.mv(
-          path.join(__dirname, "/teacherPhoto", `${user._id}.${qoshimcha}`),
+          path.join(__dirname, "/uploads", `${user._id}.${qoshimcha}`),
           (err) => {
             if (err) {
               console.log(err);
@@ -212,9 +212,9 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
       } else {
         const { file } = req.files;
         let qoshimcha = file.name.split(".").at(-1);
-        image = path.join("/teacherPhoto", `${user._id}.${qoshimcha}`);
+        image = path.join("/uploads", `${user._id}.${qoshimcha}`);
         await file.mv(
-          path.join(__dirname, "/teacherphoto", `${user._id}.${qoshimcha}`),
+          path.join(__dirname, "/uploads", `${user._id}.${qoshimcha}`),
           (err) => {
             if (err) {
               console.log(err);
