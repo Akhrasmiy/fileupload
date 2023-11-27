@@ -165,7 +165,7 @@ router.post("/users/register/verify", async (req, res, next) => {
 
     const existuser=await User.findOne({email:email,isverify:false})
     if(!existuser){
-      res.sendStatus(404)("bunday user yoq")
+      res.sendStatus(404).json("bunday user yoq")
     }
     console.log(code,existuser.sendEmail);
 
