@@ -70,7 +70,6 @@ router.get("/teacherinfo/:id", async (req, res) => {
     if (!teacher) {
       return res.status(404).send("O'qituvchi topilmadi");
     }
-    teacher.obunachilar = teacher.obunachilar;
     res.send(teacher);
   } catch (error) {
     res.status(500).send("Server xatosi: " + error);
@@ -82,7 +81,6 @@ router.get("/teacherme", IsTeacherIn, async (req, res) => {
     if (!teacher) {
       return res.status(404).send("O'qituvchi topilmadi");
     }
-    teacher.obunachilar = teacher.obunachilar.length;
     res.send(teacher);
   } catch (error) {
     res.status(500).send("Server xatosi: " + error);

@@ -233,46 +233,6 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
     res.status(500).send(error);
   }
 });
-router.post("/userseditimg", IsLoggedIn, async (req, res, next) => {
-  
-  const id = req.user.userId;
-  const user = await User.findById(id);
-  if (req?.files?.file) {
-    console.log("a");
-    if (user.path == "") {
-      const { file } = req.files;
-      let qoshimcha = file.name.split(".").at(-1);
-      image = path.join("/teacherPhoto", `${user._id}.${qoshimcha}`);
-      await file.mv(
-        path.join(__dirname, "/teacherPhoto", `${user._id}.${qoshimcha}`),
-        (err) => {
-          if (err) {
-            console.log(err);
-          }
-        }
-      );
-      user.path = image;
-    } else {
-      const { file } = req.files;
-      let qoshimcha = file.name.split(".").at(-1);
-      image = path.join("/teacherPhoto", `${user._id}.${qoshimcha}`);
-      await file.mv(
-        path.join(__dirname, "/teacherphoto", `${user._id}.${qoshimcha}`),
-        (err) => {
-          if (err) {
-            console.log(err);
-          }
-        }
-      );
-      user.path = image;
-    }
-   await user.save()
-   res.send(user)
-  }
-  else{
-    res.send("fayl yuborish majburiy")
-  }
-})
 router.post("/baycurs", IsLoggedIn, async (req, res, next) => {
   try {
     const { cursId } = req.body;
