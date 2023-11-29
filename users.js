@@ -252,7 +252,7 @@ router.post("/baycurs", IsLoggedIn, async (req, res, next) => {
     if (user.price >= curs.narxi) {
       user.price = Number(user.price) - Number(curs.narxi);
       teacher.hisob = Number(teacher.hisob) + Number(curs.narxi) * 0.8;
-      curs.profit=Number(curs.profit)+Number(curs.narxi)
+      curs.profit=Number(curs.profit)+Number(curs.narxi)*0.8
       admin.hisobi = Number(admin.hisobi) + Number(curs.narxi) * 0.2;
       curs.subs.push(req.user.userId);
       user.mycurs.push({
