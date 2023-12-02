@@ -34,7 +34,7 @@ const Curs = mongoose.model("Curs", cursModul);
 const Teacher = mongoose.model("Teacher", teacherModul);
 
 async function idgenerate() {
-  const id = Math.floor(Math.random() * 10 ** 8);
+  const id = Math.floor((Math.random()*(0.99999999 - 0.1) + 0.1) * 10 ** 8);
   const existId = await User.findOne({ tolovId: id });
   if (existId) {
     return idgenerate();
