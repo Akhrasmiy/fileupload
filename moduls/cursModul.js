@@ -7,15 +7,11 @@ const cursschema = new mongoose.Schema(
     },
     Kursname: {
       type: String,
-      required: true,
-      minlength: 3,
-      maxlength: 50,
+      required: true
     },
     Kursdesc: {
       type: String,
       required: true,
-      minlength: 3,
-      maxlength: 50,
     },
     narxi: {
       type: Number,

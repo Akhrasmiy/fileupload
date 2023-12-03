@@ -216,7 +216,7 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
         res.send(savedCurs);
         next();
       } catch (error) {
-        console.log(err);
+        console.log(error);
         res.status(500).send(error);
       }
     }
