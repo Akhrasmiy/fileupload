@@ -273,7 +273,7 @@ router.post("/baycurs", IsLoggedIn, async (req, res, next) => {
 
     next();
   } catch (error) {
-    res.send(error);
+    res.send(error+"xatolik");
   }
 });
 router.post("/users/savecurs", IsLoggedIn, async (req, res) => {
