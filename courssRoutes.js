@@ -206,6 +206,7 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
           muddati: muddati,
           Comments: [],
           treeler: treelerorni,
+          profit:0
         });
 
         const savedCurs = await curs.save();
