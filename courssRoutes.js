@@ -165,7 +165,7 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
             "courses/" +
               req.teacher.teacherId +
               "/" +
-              name.split(" ").join("-") +
+              name.split(" ").join("-").split(".").join("") +
               "/" +
               `${vediosRand}.${qoshimcha}`
           ),
@@ -182,7 +182,7 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
             "courses/" +
               req.teacher.teacherId +
               "/" +
-              name +
+              name.split(" ").join("-").split(".").join("") +
               "/" +
               `treeler.${treelerqoshimcha}`
           );
