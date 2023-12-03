@@ -135,7 +135,7 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
         __dirname,
         "courses",
         req.teacher.teacherId,
-        name.split(" ").join("-")
+        name.split(" ").join("-").split(".").join("")
       );
       let obqoshimcha = obloshka.name.split(".").at(-1);
       const location = path.join(folder, `obloshka.${obqoshimcha}`);
