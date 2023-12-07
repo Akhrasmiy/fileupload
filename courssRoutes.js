@@ -133,20 +133,21 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
       let { obloshka } = req.files;
       const folder = path.join(
         __dirname,
-        "courses",
-        req.teacher.teacherId,
-        name.split(" ").join("-").split(".").join("")
+        "uploads"
       );
+      let curstreelerrandom = randomUUID();
+      let cursobloshkarandom = randomUUID();
       let obqoshimcha = obloshka.name.split(".").at(-1);
-      const location = path.join(folder, `obloshka.${obqoshimcha}`);
+      const location = path.join(folder, `${cursobloshkarandom}.${obqoshimcha}`);
       let treelerqoshimcha = "";
       let treelerlocation = "";
+      
       await fs.mkdir(folder, { recursive: true });
 
       if (req.files.treeler) {
         let { treeler } = req.files;
         treelerqoshimcha = treeler.name.split(".").at(-1);
-        treelerlocation = path.join(folder, `treeler.${treelerqoshimcha}`);
+        treelerlocation = path.join(folder, `${curstreelerrandom}.${treelerqoshimcha}`);
         await fs.writeFile(treelerlocation, treeler.data);
       }
 
@@ -162,12 +163,7 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
           nomi: vediosname[i],
           desc: vediosdesc[i],
           orni: path.join(
-            "courses/" +
-              req.teacher.teacherId +
-              "/" +
-              name.split(" ").join("-").split(".").join("") +
-              "/" +
-              `${vediosRand}.${qoshimcha}`
+            "uploads/" +`${vediosRand}.${qoshimcha}`
           ),
           isOpen: isOpen[i],
         });
@@ -179,24 +175,16 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
         let treelerorni = "";
         if (req.files.treeler) {
           treelerorni = path.join(
-            "courses/" +
-              req.teacher.teacherId +
-              "/" +
-              name.split(" ").join("-").split(".").join("") +
-              "/" +
-              `treeler.${treelerqoshimcha}`
+            "uploads/" +
+              `${curstreelerrandom}.${treelerqoshimcha}`
           );
         }
 
         const curs = new Curs({
           Kursname: name,
           obloshka: path.join(
-            "courses/" +
-              req.teacher.teacherId +
-              "/" +
-              name +
-              "/" +
-              `obloshka.${obqoshimcha}`
+            "uploads/" +
+              `${cursobloshkarandom}.${obqoshimcha}`
           ),
           teacher_Id: req.teacher.teacherId,
           Kursdesc: desc,
