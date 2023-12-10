@@ -115,7 +115,9 @@ router.post("/courseone/me", IsTeacherIn, async (req, res) => {
 
 router.post("/courses", IsTeacherIn, async (req, res, next) => {
   try {
-    console.log(req.teacher.teacherId);
+    var id = new mongoose.Types.ObjectId();
+    console.log(String(id));
+    // console.log(req.teacher.teacherId);
     const { name, vediosname, isOpen, vediosdesc, desc, narxi, muddati } =
       req.body;
     let vedios = [];
@@ -157,17 +159,18 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
         let file = req.files.file[i];
         let qoshimcha = file.name.split(".").at(-1);
         let vediosRand = randomUUID();
-        const location = path.join(folder, `${vediosRand}.${qoshimcha}`);
+        const location = path.join(folder,"courses",String(id), `${vediosRand}.${qoshimcha}`);
         console.log(location);
         vedios.push({
           nomi: vediosname[i],
           desc: vediosdesc[i],
           orni: path.join(
-            "uploads/" +`${vediosRand}.${qoshimcha}`
+            "uploads/courses/"+String(id) +`/${vediosRand}.${qoshimcha}`
           ),
           isOpen: isOpen[i],
         });
-        await fs.mkdir(folder, { recursive: true });
+        let joyi=path.join(folder,"courses",String(id),)
+        await fs.mkdir(joyi, { recursive: true });
         await fs.writeFile(location, file.data);
       }
 
@@ -181,6 +184,7 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
         }
 
         const curs = new Curs({
+          _id:String(id),
           Kursname: name,
           obloshka: path.join(
             "uploads/" +
