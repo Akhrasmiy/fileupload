@@ -242,7 +242,6 @@ router.put("/teacher/", IsTeacherIn, async (req, res) => {
       res.send(teacher);
     }
     else{
-      teacher.path=""
     }
     await teacher.save();
     res.send(teacher);
