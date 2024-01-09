@@ -45,6 +45,10 @@ const cursschema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    recommend:{
+      type:Boolean,
+      default:true
+    }
   },
   {
     timestamps: {
