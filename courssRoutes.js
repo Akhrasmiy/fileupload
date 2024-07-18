@@ -13,6 +13,9 @@ const teacherschema = require("./moduls/teacherModul");
 const IsTeacherIn = require("./is/isTeacherin");
 const IsLoggedIn = require("./is/islogedin");
 const userschema = require("./moduls/userModul");
+const FormData = require('form-data');
+const { default: axios } = require("axios");
+
 // GET so'rovi
 router.use(express.json());
 
@@ -113,11 +116,11 @@ router.post("/courseone/me", IsTeacherIn, async (req, res) => {
   }
 });
 
+
 router.post("/courses", IsTeacherIn, async (req, res, next) => {
   try {
     console.log(req.teacher.teacherId);
-    const { name, vediosname, isOpen, vediosdesc, desc, narxi, muddati } =
-      req.body;
+    const { name, vediosname, isOpen, vediosdesc, desc, narxi, muddati } = req.body;
     let vedios = [];
     let i = 0;
     let existingcurs = await Curs.findOne({
@@ -132,54 +135,64 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
       }
       let { obloshka } = req.files;
       const folder = path.join(__dirname, "uploads");
-      let curstreelerrandom = randomUUID();
       let cursobloshkarandom = randomUUID();
       let obqoshimcha = obloshka.name.split(".").at(-1);
       const location = path.join(
         folder,
         `${cursobloshkarandom}.${obqoshimcha}`
       );
-      let treelerqoshimcha = "";
-      let treelerlocation = "";
 
       await fs.mkdir(folder, { recursive: true });
 
+      let treelerorni = "";
+
       if (req.files.treeler) {
         let { treeler } = req.files;
-        treelerqoshimcha = treeler.name.split(".").at(-1);
-        treelerlocation = path.join(
-          folder,
-          `${curstreelerrandom}.${treelerqoshimcha}`
-        );
-        await fs.writeFile(treelerlocation, treeler.data);
+        const treelerFormData = new FormData();
+        treelerFormData.append('video', treeler.data, treeler.name);
+        
+        try {
+          const treelerResponse = await axios.post('http://save.ilmlar.com/file', treelerFormData, {
+            headers: {
+              ...treelerFormData.getHeaders(),
+            },
+          });
+
+          const treelerUUID = treelerResponse.data;
+          treelerorni = `http://save.ilmlar.com/video?uuid=${treelerUUID}`;
+        } catch (error) {
+          console.error('Error uploading trailer:', error);
+          return res.status(500).send('Failed to upload trailer.');
+        }
       }
 
       await fs.writeFile(location, obloshka.data);
+
       console.log(vediosname.length);
       for (let i = 0; i < vediosname.length; i++) {
         let file = req.files.file[i];
-        let qoshimcha = file.name.split(".").at(-1);
-        let vediosRand = randomUUID();
-        const location = path.join(folder, `${vediosRand}.${qoshimcha}`);
-        console.log(location);
-        vedios.push({
-          nomi: vediosname[i],
-          desc: vediosdesc[i],
-          orni: path.join("uploads/" + `${vediosRand}.${qoshimcha}`),
-          isOpen: isOpen[i],
-        });
-        await fs.mkdir(folder, { recursive: true });
-        await fs.writeFile(location, file.data);
+        const formData = new FormData();
+        formData.append('video', file.data, file.name);
+
+        try {
+          const response = await axios.post('http://save.ilmlar.com/file', formData, {
+            headers: formData.getHeaders(),
+          });
+
+          const uuid = response.data;
+          vedios.push({
+            nomi: vediosname[i],
+            desc: vediosdesc[i],
+            orni: `http://save.ilmlar.com/video?uuid=${uuid}`,
+            isOpen: isOpen[i],
+          });
+        } catch (error) {
+          console.error('Error uploading file:', error);
+          return res.status(500).send('Failed to upload file.');
+        }
       }
 
       try {
-        let treelerorni = "";
-        if (req.files.treeler) {
-          treelerorni = path.join(
-            "uploads/" + `${curstreelerrandom}.${treelerqoshimcha}`
-          );
-        }
-
         const curs = new Curs({
           Kursname: name,
           obloshka: path.join(
@@ -212,6 +225,12 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
     return res.status(500).send(error);
   }
 });
+
+
+
+
+
+
 router.post("/courses/commint", IsLoggedIn, async (req, res, next) => {
   try {
     const { cursId } = req.body;
