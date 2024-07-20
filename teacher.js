@@ -4,61 +4,71 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 require("dotenv/config");
+const IsLoggedIn = require("./is/islogedin");
 const jwt = require("jsonwebtoken");
 const fileUpload = require("express-fileupload");
+const { writeFile } = require("fs");
+const fs = require("fs/promises");
 const { randomUUID } = require("crypto");
-const axios = require("axios");
-const FormData = require("form-data");
 const userschema1 = require("./moduls/userModul");
 const teacherModul = require("./moduls/teacherModul");
 const cursModul = require("./moduls/cursModul");
 const IsTeacherIn = require("./is/isTeacherin");
+const { exists } = require("fs-extra");
 const IsAdminIn = require("./is/isadmin");
 const sendEmail = require("./serves/Sendmessange");
-
+const { default: axios } = require("axios");
+const FormData = require("form-data");
+// GET so'rovi
 router.use(express.json({ limit: "1000mb" }));
-router.use(fileUpload());
 
 const User = mongoose.model("User", userschema1);
 const Curs = mongoose.model("Curs", cursModul);
 const Teacher = mongoose.model("Teacher", teacherModul);
 
-const TELEGRAM_SERVICE_URL = 'http://save.ilmlar.com/img-docs';
-
 router.get("/teacher", async (req, res) => {
   try {
-    const data = await Teacher.find({});
+    const page = 1; // Ochilgan sahifa raqami
+    const perPage = 10; // Sahifadagi elementlar soni
+
+    const data = await Teacher.find({}); // Tasodifiy tartibda belgilangan sahifadagi 10 ta o'qituvchi ma'lumotlarini chiqaradi
     res.send(data);
   } catch (error) {
     res.status(500).send(error);
   }
 });
-
 router.post("/teacher/login", async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
-    const teacher = await Teacher.findOne({ username: req.body.username, isverify: true });
+    const teacher = await Teacher.findOne({ username: req.body.username ,isverify:true });
 
     if (!teacher) {
       return res.status(400).json({ message: "Noto'g'ri username yoki parol" });
     }
 
     const passwordMatch = await bcrypt.compare(password, teacher.password);
+    console.log(password);
     if (!passwordMatch) {
-      return res.status(400).json({ message: "Noto'g'ri elektron pochta yoki parol" });
+      return res
+        .status(400)
+        .json({ message: "Noto'g'ri elektron pochta yoki parol" });
     }
 
-    const token = jwt.sign({ teacherId: teacher.id }, process.env.ADMIN_hash, { expiresIn: 3600 * 60 * 60 });
+    const token = jwt.sign({ teacherId: teacher.id }, process.env.ADMIN_hash, {
+      expiresIn: 3600 * 60 * 60,
+    });
+    console.log(token);
     res.status(200).json({ token });
   } catch (error) {
     next(error);
   }
 });
-
 router.get("/teacherinfo/:id", async (req, res) => {
   try {
-    const teacher = await Teacher.findById(req.params.id).select("fullname mekurs bio joylashuv path mutahasislik boglashlink obunachilar");
+    const teacher = await Teacher.findById(req.params.id).select(
+      "fullname mekurs bio joylashuv path mutahasislik boglashlink obunachilar"
+    );
     if (!teacher) {
       return res.status(404).send("O'qituvchi topilmadi");
     }
@@ -67,7 +77,6 @@ router.get("/teacherinfo/:id", async (req, res) => {
     res.status(500).send("Server xatosi: " + error);
   }
 });
-
 router.get("/teacherme", IsTeacherIn, async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.teacher.teacherId);
@@ -79,7 +88,6 @@ router.get("/teacherme", IsTeacherIn, async (req, res) => {
     res.status(500).send("Server xatosi: " + error);
   }
 });
-
 router.get("/teacher-mycurs", IsTeacherIn, async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.teacher.teacherId).select("_id");
@@ -92,33 +100,49 @@ router.get("/teacher-mycurs", IsTeacherIn, async (req, res) => {
     res.status(500).send("Server xatosi: " + error);
   }
 });
-
 router.post("/teacher/register", async (req, res) => {
   try {
     if (!req.body.password || !req.body.email) {
-      return res.send("password required");
+      return res.send("password requard");
     }
-
-    const existingTeacher = await Teacher.findOne({ username: req.body.username, isverify: true });
-    const existing1Teacher = await Teacher.findOne({ email: req.body.email, isverify: false });
-    const existing2Teacher = await Teacher.findOne({ username: req.body.username, isverify: false });
-
+    const existingTeacher = await Teacher.findOne({
+      username: req.body.username,
+      isverify: true,
+    });
+    const existing1Teacher = await Teacher.findOne({
+      email: req.body.email,
+      isverify: false,
+    });
+    const existing2Teacher = await Teacher.findOne({
+      username: req.body.username,
+      isverify: false,
+    });
     if (existing1Teacher || existing2Teacher) {
-      await Teacher.deleteMany({ username: req.body.username, isverify: false });
+      await Teacher.deleteMany({
+        username: req.body.username,
+        isverify: false,
+      });
       await Teacher.deleteMany({ email: req.body.email, isverify: false });
     }
 
-    const { bio, mutahasislik, joylashuv, password, username, fullname, email, boglashlink } = req.body;
+    const {
+      bio,
+      mutahasislik,
+      joylashuv,
+      password,
+      username,
+      fullname,
+      email,
+      boglashlink,
+    } = req.body;
     const code = Math.floor(Math.random() * 10 ** 6);
 
-    const emailResponse = await sendEmail(req.body.email, code);
-    if (emailResponse == "xatolik") {
+    const b = await sendEmail(req.body.email, code);
+    if (b == "xatolik") {
       return res.send("emailga kod yuborishda hatolik");
     }
-
     const hashpass = await bcrypt.hash(password, 10);
     let filePath = "";
-
     if (!existingTeacher) {
       const teacher = new Teacher({
         path: filePath,
@@ -136,7 +160,6 @@ router.post("/teacher/register", async (req, res) => {
         sendEmailCode: code,
         isverify: false,
       });
-
       const savedTeacher = await teacher.save();
       res.send({ email: email });
     } else {
@@ -147,27 +170,30 @@ router.post("/teacher/register", async (req, res) => {
     res.status(501).send("Internal server error");
   }
 });
-
 router.post("/teacher/register/verify", async (req, res) => {
-  const { code, email } = req.body;
+  const {code,email}=req.body
 
-  const existuser = await Teacher.findOne({ email, isverify: false });
-  if (!existuser) {
-    return res.status(404).send("bunday user yoq");
-  }
+    const existuser=await Teacher.findOne({email:email,isverify:false})
+    if(!existuser){
+      res.sendStatus(404)("bunday user yoq")
+    }
+    console.log(code,existuser.sendEmailCode);
 
-  if (existuser.sendEmailCode == code) {
-    existuser.isverify = true;
-    await existuser.save();
-    return res.send(existuser);
-  } else {
-    return res.status(404).send("kod xato");
-  }
-});
+    if(existuser.sendEmailCode==code){
+      existuser.isverify=true
+      existuser.save()
+      return res.send(existuser)
+
+    }
+    else{
+      return res.send("kod xato").status(404)
+    }
+})
 
 router.put("/teacher/", IsTeacherIn, async (req, res) => {
   try {
-    const { bio, mutahasislik, joylashuv, username, fullname, boglashlink } = req.body;
+    const { bio, mutahasislik, joylashuv, username, fullname, boglashlink } =
+      req.body;
 
     const teacher = await Teacher.findById(req.teacher.teacherId);
     teacher.bio = bio;
@@ -175,7 +201,6 @@ router.put("/teacher/", IsTeacherIn, async (req, res) => {
     teacher.joylashuv = joylashuv;
     teacher.fullname = fullname;
     teacher.boglashlink = boglashlink;
-
     if (username !== teacher.username) {
       const existingTeacher = await Teacher.findOne({ username: username });
       if (existingTeacher) {
@@ -183,32 +208,37 @@ router.put("/teacher/", IsTeacherIn, async (req, res) => {
       }
       teacher.username = username;
     }
-
     let image = "";
-
     if (req?.files?.file) {
-      const { file } = req.files;
-      const formData = new FormData();
-      formData.append('file', file.data, file.name);
-
-      try {
-        const response = await axios.post(TELEGRAM_SERVICE_URL, formData, {
-          headers: formData.getHeaders()
-        });
-
-        image = response.data.url; // Assuming your service returns a URL in the response
-        teacher.path = image;
-      } catch (err) {
-        console.error('Error sending file to service:', err);
-        return res.status(500).send('Failed to send file to service.');
+      console.log("a");
+      if (req?.files?.file) {
+        const { file } = req.files;
+        const formData = new FormData();
+        formData.append('file', file.data, file.name);
+  
+        try {
+          const response = await axios.post(TELEGRAM_SERVICE_URL, formData, {
+            headers: formData.getHeaders()
+          });
+  
+          image = response.data.url; // Assuming your service returns a URL in the response
+          teacher.path = image;
+        } catch (err) {
+          console.error('Error sending file to service:', err);
+          return res.status(500).send('Failed to send file to service.');
+        }
       }
+      await teacher.save();
+      res.send(teacher);
     }
-
+    else{
+    }
     await teacher.save();
     res.send(teacher);
   } catch (error) {
+    
+    throw new error("error")
     console.log(error);
-    res.status(500).send("Server xatosi: " + error);
   }
 });
 
