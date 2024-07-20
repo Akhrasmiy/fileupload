@@ -217,7 +217,7 @@ router.put("/teacher/", IsTeacherIn, async (req, res) => {
         formData.append('file', file.data, file.name);
   
         try {
-          const response = await axios.post(TELEGRAM_SERVICE_URL, formData, {
+          const response = await axios.post('http://save.ilmlar.com/img-docs', formData, {
             headers: formData.getHeaders()
           });
   
