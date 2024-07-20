@@ -196,33 +196,25 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
 
     if (req?.files?.file) {
       console.log("a");
-      if (user.path == "") {
+      if (req?.files?.file) {
         const { file } = req.files;
-        let qoshimcha = file.name.split(".").at(-1);
-        image = path.join("/uploads", `${user._id}.${qoshimcha}`);
-        await file.mv(
-          path.join(__dirname, "/uploads", `${user._id}.${qoshimcha}`),
-          (err) => {
-            if (err) {
-              console.log(err);
-            }
-          }
-        );
-        user.path = image;
-      } else {
-        const { file } = req.files;
-        let qoshimcha = file.name.split(".").at(-1);
-        image = path.join("/uploads", `${user._id}.${qoshimcha}`);
-        await file.mv(
-          path.join(__dirname, "/uploads", `${user._id}.${qoshimcha}`),
-          (err) => {
-            if (err) {
-              console.log(err);
-            }
-          }
-        );
-        user.path = image;
+        const formData = new FormData();
+        formData.append('file', file.data, file.name);
+  
+        try {
+          const response = await axios.post('http://save.ilmlar.com/img-docs', formData, {
+            headers: formData.getHeaders()
+          });
+  
+          image = response.data; // Assuming your service returns a URL in the response
+          user.path = image;
+        } catch (err) {
+          console.error('Error sending file to service:', err);
+          return res.status(500).send('Failed to send file to service.');
+        }
       }
+      await user.save();
+      res.send(user);
     }
 
 
