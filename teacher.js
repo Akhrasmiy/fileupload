@@ -221,7 +221,7 @@ router.put("/teacher/", IsTeacherIn, async (req, res) => {
             headers: formData.getHeaders()
           });
   
-          image = response.data.url; // Assuming your service returns a URL in the response
+          image = response.data; // Assuming your service returns a URL in the response
           teacher.path = image;
         } catch (err) {
           console.error('Error sending file to service:', err);
