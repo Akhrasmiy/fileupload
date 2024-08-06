@@ -421,6 +421,7 @@ router.get("/courses-finish/:id",IsTeacherIn,async(req,res,next)=>{
 router.get("/whoisownerbycard/:cardNumber",async(req,res,next)=>{
   const id = req.params.cardNumber;
   const response = await axios.post('http://save.ilmlar.com/file', {cardNumber:id});
+  console.log(response)
   res.send(response)
 })
 
