@@ -419,10 +419,17 @@ router.get("/courses-finish/:id", IsTeacherIn, async (req, res, next) => {
   }
 })
 router.get("/whoisownerbycard/:cardNumber", async (req, res, next) => {
-  const cardNumber = req.params.cardNumber;
-  const response = await axios.post('https://pay.myuzcard.uz/api/Credit/getCardOwnerInfoByPan', { cardNumber: cardNumber }, { headers: { Authorization: 'Basic ilmlarcom:dEpSPx^LWnK79VhC(EKh-A]*P' } });
-  console.log(response)
-  res.send(response)
+  try {
+    const cardNumber = req.params.cardNumber;
+    const response = await axios.post('https://pay.myuzcard.uz/api/Credit/getCardOwnerInfoByPan', { cardNumber: cardNumber },
+      { headers: { Authorization: 'Basic ilmlarcom:dEpSPx^LWnK79VhC(EKh-A]*P' } });
+    console.log(response)
+    res.send(response)
+  } catch (error) {
+    res.status(400).json(error)
+
+  }
+
 })
 
 module.exports = router;
