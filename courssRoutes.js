@@ -31,7 +31,7 @@ router.get("/courses", async (req, res, next) => {
   }
 
   try {
-    const data = await Curs.aggregate([
+    const data = await Curs.find({isfinished:true}).aggregate([
       { $match: query },
       { $sample: { size: 10 } },
       {
@@ -286,50 +286,59 @@ router.put("/courses/:id", IsTeacherIn, async (req, res, next) => {
 });
 
 // v2 courses add for devid
+
 router.post("/courses-create", IsTeacherIn, async (req, res, next) => {
   try {
-    const { name, vediosname, isOpen, vediosdesc, desc, narxi, muddati } =
-      req.body;
+    const { name,  desc, narxi, muddati } = req.body;
     let vedios = [];
     if (!req.files.obloshka) {
       return res.status(500).send("obloshkani kirit");
     }
     let { obloshka } = req.files;
-    const folder = path.join(__dirname, "uploads");
-    let curstreelerrandom = randomUUID();
-    let cursobloshkarandom = randomUUID();
-    let obqoshimcha = obloshka.name.split(".").at(-1);
-    const location = path.join(folder, `${cursobloshkarandom}.${obqoshimcha}`);
-    let treelerqoshimcha = "";
-    let treelerlocation = "";
 
-    await fs.mkdir(folder, { recursive: true });
+    let obloshkaURL = '';
+    const obloshkaFormData = new FormData();
+    obloshkaFormData.append('file', obloshka.data, obloshka.name);
+
+    try {
+      const obloshkaResponse = await axios.post('http://save.ilmlar.com/img-docs', obloshkaFormData, {
+        headers: {
+          ...obloshkaFormData.getHeaders(),
+        },
+      });
+
+      obloshkaURL = obloshkaResponse.data;
+    } catch (error) {
+      console.error('Error uploading obloshka:', error);
+      return res.status(500).send('Failed to upload obloshka.');
+    }
+
+    let treelerorni = "";
 
     if (req.files.treeler) {
       let { treeler } = req.files;
-      treelerqoshimcha = treeler.name.split(".").at(-1);
-      treelerlocation = path.join(
-        folder,
-        `${curstreelerrandom}.${treelerqoshimcha}`
-      );
-      await fs.writeFile(treelerlocation, treeler.data);
+      const treelerFormData = new FormData();
+      treelerFormData.append('video', treeler.data, treeler.name);
+
+      try {
+        const treelerResponse = await axios.post('http://save.ilmlar.com/file', treelerFormData, {
+          headers: {
+            ...treelerFormData.getHeaders(),
+          },
+        });
+
+        const treelerUUID = treelerResponse.data;
+        treelerorni = `http://save.ilmlar.com/video?uuid=${treelerUUID}`;
+      } catch (error) {
+        console.error('Error uploading trailer:', error);
+        return res.status(500).send('Failed to upload trailer.');
+      }
     }
 
-    await fs.writeFile(location, obloshka.data);
-
     try {
-      let treelerorni = "";
-      if (req.files.treeler) {
-        treelerorni = path.join(
-          "uploads/" + `${curstreelerrandom}.${treelerqoshimcha}`
-        );
-      }
-
       const curs = new Curs({
         Kursname: name,
-        obloshka: path.join(
-          "uploads/" + `${cursobloshkarandom}.${obqoshimcha}`
-        ),
+        obloshka: obloshkaURL,
         teacher_Id: req.teacher.teacherId,
         Kursdesc: desc,
         narxi: narxi,
@@ -337,7 +346,7 @@ router.post("/courses-create", IsTeacherIn, async (req, res, next) => {
         vedios: vedios,
         muddati: muddati,
         Comments: [],
-        recommend:false,
+        isfinished: false,
         treeler: treelerorni,
         profit: 0,
       });
@@ -358,41 +367,56 @@ router.post("/courses-create", IsTeacherIn, async (req, res, next) => {
   }
 });
 
+
+
+
+
+
 router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
   const id = req.params.id;
-  
-  const folder = path.join(__dirname, "uploads");
-  const {videoName,videoDesc,isOpen}=req.body
+  const { videoName, videoDesc, isOpen } = req.body;
   const course = await Curs.findById(id);
-  if(!course||course.teacher_Id!==req.teacher.teacherId||course.recommend){
-    return res.send("error").status(400)
+  if (!course || course.teacher_Id !== req.teacher.teacherId || course.isfinished) {
+    return res.status(400).send("error");
   }
+
   let file = req.files.videofile;
-  let qoshimcha = file.name.split(".").at(-1);
-  let vediosRand = randomUUID();
-  const location = path.join(folder, `${vediosRand}.${qoshimcha}`);
-  console.log(location);
-  course.vedios.push({
-    nomi: videoName,
-    desc: videoDesc,
-    orni: path.join("uploads/" + `${vediosRand}.${qoshimcha}`),
-    isOpen: isOpen,
-  });
-  await fs.mkdir(folder, { recursive: true });
-  await fs.writeFile(location, file.data);
-  await course.save()
-  console.log(course);
-  res.send(course);
+  const formData = new FormData();
+  formData.append('video', file.data, file.name);
+
+  try {
+    const response = await axios.post('http://save.ilmlar.com/file', formData, {
+      headers: formData.getHeaders(),
+    });
+
+    const uuid = response.data;
+    course.vedios.push({
+      nomi: videoName,
+      desc: videoDesc,
+      orni: `http://save.ilmlar.com/video?uuid=${uuid}`,
+      isOpen: isOpen,
+    });
+
+    await course.save();
+    res.send(course);
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).send('Failed to upload file.');
+  }
 });
-// router.get("/courses-finish/:id",IsTeacherIn,async(req,res,next)=>{
-//   const id = req.params.id;
-//   const course=await Curs.find({teacher_Id:req.teacher.teacherId,_id:id,recommend:false})
-//   if(!course){
-//     res.send(course._id)
-//   }
-//   else{
-//     res.send(course.name)
-//   }
-// })
+
+
+
+router.get("/courses-finish/:id",IsTeacherIn,async(req,res,next)=>{
+  const id = req.params.id;
+  const course=await Curs.find({teacher_Id:req.teacher.teacherId,_id:id,isfinished:false})
+  if(!course){
+    res.send(course._id)
+  }
+  else{
+  const course=await Curs.find({teacher_Id:req.teacher.teacherId,_id:id,isfinished:true})
+    res.send(course.name)
+  }
+})
 
 module.exports = router;
