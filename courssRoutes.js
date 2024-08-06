@@ -31,7 +31,7 @@ router.get("/courses", async (req, res, next) => {
   }
 
   try {
-    const data = await Curs.find({isfinished:true}).aggregate([
+    const data = await Curs.find({ isfinished: true }).aggregate([
       { $match: query },
       { $sample: { size: 10 } },
       {
@@ -150,7 +150,7 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
         let { treeler } = req.files;
         const treelerFormData = new FormData();
         treelerFormData.append('video', treeler.data, treeler.name);
-        
+
         try {
           const treelerResponse = await axios.post('http://save.ilmlar.com/file', treelerFormData, {
             headers: {
@@ -289,7 +289,7 @@ router.put("/courses/:id", IsTeacherIn, async (req, res, next) => {
 
 router.post("/courses-create", IsTeacherIn, async (req, res, next) => {
   try {
-    const { name,  desc, narxi, muddati } = req.body;
+    const { name, desc, narxi, muddati } = req.body;
     let vedios = [];
     if (!req.files.obloshka) {
       return res.status(500).send("obloshkani kirit");
@@ -407,20 +407,20 @@ router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
 
 
 
-router.get("/courses-finish/:id",IsTeacherIn,async(req,res,next)=>{
+router.get("/courses-finish/:id", IsTeacherIn, async (req, res, next) => {
   const id = req.params.id;
-  const course=await Curs.find({teacher_Id:req.teacher.teacherId,_id:id,isfinished:false})
-  if(!course){
+  const course = await Curs.find({ teacher_Id: req.teacher.teacherId, _id: id, isfinished: false })
+  if (!course) {
     res.send(course._id)
   }
-  else{
-  const course=await Curs.find({teacher_Id:req.teacher.teacherId,_id:id,isfinished:true})
+  else {
+    const course = await Curs.find({ teacher_Id: req.teacher.teacherId, _id: id, isfinished: true })
     res.send(course.name)
   }
 })
-router.get("/whoisownerbycard/:cardNumber",async(req,res,next)=>{
-  const id = req.params.cardNumber;
-  const response = await axios.post('https://pay.myuzcard.uz/api/Credit/getCardOwnerInfoByPan', {cardNumber:id});
+router.get("/whoisownerbycard/:cardNumber", async (req, res, next) => {
+  const cardNumber = req.params.cardNumber;
+  const response = await axios.post('https://pay.myuzcard.uz/api/Credit/getCardOwnerInfoByPan', { cardNumber: cardNumber }, { headers: { Authorization: 'Basic ilmlarcom:dEpSPx^LWnK79VhC(EKh-A]*P' } });
   console.log(response)
   res.send(response)
 })
