@@ -437,5 +437,24 @@ router.get("/whoisownerbycard/:cardNumber", async (req, res, next) => {
     res.status(400).json({ error: error });
   }
 });
+router.post("/cridettotecher", async (req, res, next) => {
+  try {
+    const {cardNumber,amount,transactionData,pinfl}=req.body
+
+    const username = 'ilmlarcom';
+    const password = 'dEpSPx^LWnK79VhC(EKh-A]*P';
+    const authString = Buffer.from(`${username}:${password}`).toString('base64');
+
+    const response = await axios.post('https://pay.myuzcard.uz/api/Credit/CreditToSelfEmployed', 
+      { cardNumber: cardNumber,amount,transactionData,pinfl,extraId: "test-extraId=01" },
+      { headers: { Authorization: `Basic ${authString}` } });
+
+    console.log(response.data);
+    res.send(response.data);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error });
+  }
+});
 
 module.exports = router;
