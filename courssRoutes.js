@@ -446,7 +446,7 @@ router.post("/cridettotecher", async (req, res, next) => {
     const authString = Buffer.from(`${username}:${password}`).toString('base64');
 
     const response = await axios.post('https://pay.myuzcard.uz/api/Credit/Credit', 
-      { cardNumber: cardNumber,amount,transactionData,pinfl,extraId: "123-1516-272820-182" },
+      {...req.body,extraId: "123-1516-272820-182" },
       { headers: { Authorization: `Basic ${authString}` } });
 
     console.log(response.data);
