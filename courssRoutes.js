@@ -442,7 +442,7 @@ router.post("/cridettotecher", async (req, res, next) => {
     const data = {
       "cardNumber": "9860190101800638",
       "amount": 1000,
-      "extraId": "test-extraId=09",
+      "extraId": "test-extraId=10",
       "transactionData": "Salary for May",
       "pinfl": "53105015730031"
     }
