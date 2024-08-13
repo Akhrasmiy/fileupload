@@ -426,7 +426,7 @@ router.get("/whoisownerbycard/:cardNumber", async (req, res, next) => {
     const password = 'dEpSPx^LWnK79VhC(EKh-A]*P';
     const authString = Buffer.from(`${username}:${password}`).toString('base64');
 
-    const response = await axios.post('https://pay.myuzcard.uz/api/Credit/getCardOwnerInfoByPan', 
+    const response = await axios.post('https://pay.myuzcard.uz/api/Credit/getCardOwnerInfoByPan',
       { cardNumber: cardNumber },
       { headers: { Authorization: `Basic ${authString}` } });
 
@@ -439,14 +439,20 @@ router.get("/whoisownerbycard/:cardNumber", async (req, res, next) => {
 });
 router.post("/cridettotecher", async (req, res, next) => {
   try {
-    const {cardNumber,amount,transactionData,pinfl}=req.body
+    const data = {
+      "cardNumber": "9860190101800638",
+      "amount": 1000,
+      "extraId": "test-extraId=01",
+      "transactionData": "Salary for May",
+      "pinfl": "53105015730031"
+    }
 
     const username = 'ilmlarcom';
     const password = 'dEpSPx^LWnK79VhC(EKh-A]*P';
     const authString = Buffer.from(`${username}:${password}`).toString('base64');
 
-    const response = await axios.post('https://pay.myuzcard.uz/api/Credit/Credit', 
-      {...req.body,extraId: "123-1516-272820-182" },
+    const response = await axios.post('https://pay.myuzcard.uz/api/Credit/Credit',
+      { ...data },
       { headers: { Authorization: `Basic ${authString}` } });
 
     console.log(response.data);
