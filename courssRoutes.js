@@ -440,11 +440,11 @@ router.get("/whoisownerbycard/:cardNumber", async (req, res, next) => {
 router.post("/cridettotecher", async (req, res, next) => {
   try {
     const data = {
-      "cardNumber": "9860190101800638",
+      "cardNumber": "9860350109370873",
       "amount": 1000,
-      "extraId": "test-extraId=12",
+      "extraId": `test-extraId=${randomUUID()}`,
       "transactionData": "Salary for May",
-      "pinfl": "53105015730031"
+      "pinfl": "50108038230022"
     }
 
     const username = 'ilmlarcom';
