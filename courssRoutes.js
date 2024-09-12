@@ -302,10 +302,10 @@ router.post("/courses-create", IsTeacherIn, async (req, res, next) => {
 
     try {
       const obloshkaResponse = await axios.post('http://save.ilmlar.com/img-docs', obloshkaFormData, {
-        headers: {
-          ...obloshkaFormData.getHeaders(),
-        },
-      });
+  headers: {
+    ...obloshkaFormData.getHeaders(),
+  },
+});
 
       obloshkaURL = obloshkaResponse.data;
     } catch (error) {
