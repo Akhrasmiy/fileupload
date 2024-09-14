@@ -411,6 +411,8 @@ router.get("/courses-finish/:id", IsTeacherIn, async (req, res, next) => {
   const id = req.params.id;
   const course = await Curs.find({ teacher_Id: req.teacher.teacherId, _id: id, isfinished: false })
   if (!course) {
+    course.isfinished=true
+    course.save()
     res.send(course._id)
   }
   else {
