@@ -152,14 +152,14 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
         treelerFormData.append('video', treeler.data, treeler.name);
 
         try {
-          const treelerResponse = await axios.post('http://save.ilmlar.com/file', treelerFormData, {
+          const treelerResponse = await axios.post('https://save.ilmlar.com/file', treelerFormData, {
             headers: {
               ...treelerFormData.getHeaders(),
             },
           });
 
           const treelerUUID = treelerResponse.data;
-          treelerorni = `http://save.ilmlar.com/video?uuid=${treelerUUID}`;
+          treelerorni = `https://save.ilmlar.com/video?uuid=${treelerUUID}`;
         } catch (error) {
           console.error('Error uploading trailer:', error);
           return res.status(500).send('Failed to upload trailer.');
@@ -175,7 +175,7 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
         formData.append('video', file.data, file.name);
 
         try {
-          const response = await axios.post('http://save.ilmlar.com/file', formData, {
+          const response = await axios.post('https://save.ilmlar.com/file', formData, {
             headers: formData.getHeaders(),
           });
 
@@ -183,7 +183,7 @@ router.post("/courses", IsTeacherIn, async (req, res, next) => {
           vedios.push({
             nomi: vediosname[i],
             desc: vediosdesc[i],
-            orni: `http://save.ilmlar.com/video?uuid=${uuid}`,
+            orni: `https://save.ilmlar.com/video?uuid=${uuid}`,
             isOpen: isOpen[i],
           });
         } catch (error) {
@@ -301,11 +301,11 @@ router.post("/courses-create", IsTeacherIn, async (req, res, next) => {
     obloshkaFormData.append('file', obloshka.data, obloshka.name);
 
     try {
-      const obloshkaResponse = await axios.post('http://save.ilmlar.com/img-docs', obloshkaFormData, {
-        headers: {
-          ...obloshkaFormData.getHeaders(),
-        },
-      });
+      const obloshkaResponse = await axios.post('https://save.ilmlar.com/img-docs', obloshkaFormData, {
+  headers: {
+    ...obloshkaFormData.getHeaders(),
+  },
+});
 
       obloshkaURL = obloshkaResponse.data;
     } catch (error) {
@@ -321,14 +321,14 @@ router.post("/courses-create", IsTeacherIn, async (req, res, next) => {
       treelerFormData.append('video', treeler.data, treeler.name);
 
       try {
-        const treelerResponse = await axios.post('http://save.ilmlar.com/file', treelerFormData, {
+        const treelerResponse = await axios.post('https://save.ilmlar.com/file', treelerFormData, {
           headers: {
             ...treelerFormData.getHeaders(),
           },
         });
 
         const treelerUUID = treelerResponse.data;
-        treelerorni = `http://save.ilmlar.com/video?uuid=${treelerUUID}`;
+        treelerorni = `https://save.ilmlar.com/video?uuid=${treelerUUID}`;
       } catch (error) {
         console.error('Error uploading trailer:', error);
         return res.status(500).send('Failed to upload trailer.');
@@ -385,7 +385,7 @@ router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
   formData.append('video', file.data, file.name);
 
   try {
-    const response = await axios.post('http://save.ilmlar.com/file', formData, {
+    const response = await axios.post('https://save.ilmlar.com/file', formData, {
       headers: formData.getHeaders(),
     });
 
@@ -393,7 +393,7 @@ router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
     course.vedios.push({
       nomi: videoName,
       desc: videoDesc,
-      orni: `http://save.ilmlar.com/video?uuid=${uuid}`,
+      orni: `https://save.ilmlar.com/video?uuid=${uuid}`,
       isOpen: isOpen,
     });
 

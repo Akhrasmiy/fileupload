@@ -202,7 +202,7 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
         formData.append('file', file.data, file.name);
   
         try {
-          const response = await axios.post('http://save.ilmlar.com/img-docs', formData, {
+          const response = await axios.post('https://save.ilmlar.com/img-docs', formData, {
             headers: formData.getHeaders()
           });
   
