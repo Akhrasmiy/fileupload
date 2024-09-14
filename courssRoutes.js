@@ -32,7 +32,7 @@ router.get("/courses", async (req, res, next) => {
 
   try {
     const data = await Curs.aggregate([
-      { $match: { isfinished: true, ...query } }, // Combine isfinished with the query
+      { $match: {  ...query } }, // Combine isfinished with the query
       { $sample: { size: 10 } },
       {
         $project: {
