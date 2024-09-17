@@ -18,6 +18,7 @@ const adminschema = require("./moduls/adminModul");
 const IsClickIn = require("./is/isClick");
 const { error, log } = require("console");
 const sendEmail = require("./serves/Sendmessange");
+const FormData = require("form-data");
 // GET so'rov
 router.use(express.json({ limit: "1000mb" }));
 router.use(
