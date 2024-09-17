@@ -221,6 +221,7 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
     await user.save()
     res.send(user)
   } catch (error) {
+    console.error(error)
     res.status(500).send(error);
   }
 });
