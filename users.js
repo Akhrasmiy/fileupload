@@ -196,7 +196,6 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
 
     if (req?.files?.file) {
       console.log("a");
-      if (req?.files?.file) {
         const { file } = req.files;
         const formData = new FormData();
         formData.append('file', file.data, file.name);
@@ -212,7 +211,7 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
           console.error('Error sending file to service:', err);
           return res.status(500).send('Failed to send file to service.');
         }
-      }
+      
       await user.save();
       res.send(user);
     }
