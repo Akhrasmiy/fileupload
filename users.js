@@ -34,7 +34,7 @@ const Curs = mongoose.model("Curs", cursModul);
 const Teacher = mongoose.model("Teacher", teacherModul);
 
 async function idgenerate() {
-  const id = Math.floor((Math.random()*(0.99999999 - 0.1) + 0.1) * 10 ** 8);
+  const id = Math.floor((Math.random() * (0.99999999 - 0.1) + 0.1) * 10 ** 8);
   const existId = await User.findOne({ tolovId: id });
   if (existId) {
     return idgenerate();
@@ -74,7 +74,7 @@ router.post("/users/login", async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
-    const user = await User.findOne({ username: req.body.username,isverify:true });
+    const user = await User.findOne({ username: req.body.username, isverify: true });
 
     if (!user) {
       return res
@@ -102,14 +102,14 @@ router.post("/users/register", async (req, res, next) => {
   console.log(req.body);
   let image = "";
   const code = Math.floor(Math.random() * 10 ** 6);
-  if(!req.body.email){
-   res.send("email majburiy").status("404")
+  if (!req.body.email) {
+    res.send("email majburiy").status("404")
   }
-   const b= await sendEmail(req.body.email, code);
-   if(b=="xatolik"){
+  const b = await sendEmail(req.body.email, code);
+  if (b == "xatolik") {
     return res.send("emailga kod yuborishda hatolik")
-   }
-  
+  }
+
   const hashpass = await bcrypt.hash(req.body.password, 10);
   const student = await User.findOne({
     username: req.body.username,
@@ -133,7 +133,7 @@ router.post("/users/register", async (req, res, next) => {
     isverify: false,
   });
   if (notstudent) {
-   await User.deleteMany({
+    await User.deleteMany({
       email: req.body.email,
       isverify: false,
     })
@@ -147,13 +147,13 @@ router.post("/users/register", async (req, res, next) => {
       fullname: req.body.fullname,
       email: req.body.email,
       price: 0,
-      sendEmail:code,
+      sendEmail: code,
       savecurss: [],
-      isverify:false,
+      isverify: false,
       tolovId: await idgenerate(),
     });
     const savedUser = await user.save();
-    res.send({email:req.body.email});
+    res.send({ email: req.body.email });
     next();
   } catch (error) {
     res.status(500).send(error);
@@ -161,38 +161,38 @@ router.post("/users/register", async (req, res, next) => {
 });
 
 router.post("/users/register/verify", async (req, res, next) => {
-    const {code,email}=req.body
+  const { code, email } = req.body
 
-    const existuser=await User.findOne({email:email,isverify:false})
-    if(!existuser){
-      res.sendStatus(404).json("bunday user yoq")
-    }
-    console.log(code,existuser.sendEmail);
+  const existuser = await User.findOne({ email: email, isverify: false })
+  if (!existuser) {
+    res.sendStatus(404).json("bunday user yoq")
+  }
+  console.log(code, existuser.sendEmail);
 
-    if(existuser.sendEmail==code){
-      existuser.isverify=true
-      existuser.save()
-      return res.send(existuser)
+  if (existuser.sendEmail == code) {
+    existuser.isverify = true
+    existuser.save()
+    return res.send(existuser)
 
-    }
-    else{
-      return res.send("kod xato").status(404)
-    }
+  }
+  else {
+    return res.send("kod xato").status(404)
+  }
 })
 
 router.put("/users/", IsLoggedIn, async (req, res, next) => {
   try {
-    const{username,fullname}=req.body
+    const { username, fullname } = req.body
     const id = req.user.userId;
     const user = await User.findById(id);
-    if(user.username!=username){
-      const existuser = await User.findOne({username:username});
-      if(existuser){
-        res.status(400).json({error:"bunday user mavjud"})
+    if (user.username != username) {
+      const existuser = await User.findOne({ username: username });
+      if (existuser) {
+        res.status(400).json({ error: "bunday user mavjud" })
       }
-      user.username=username
+      user.username = username
     }
-    user.fullname=fullname
+    user.fullname = fullname
 
     if (req?.files?.file) {
       console.log("a");
@@ -200,12 +200,12 @@ router.put("/users/", IsLoggedIn, async (req, res, next) => {
         const { file } = req.files;
         const formData = new FormData();
         formData.append('file', file.data, file.name);
-  
+        console.log("salom")
         try {
           const response = await axios.post('https://save.ilmlar.com/img-docs', formData, {
             headers: formData.getHeaders()
           });
-  
+          console.log(response.data)
           image = response.data; // Assuming your service returns a URL in the response
           user.path = image;
         } catch (err) {
@@ -244,7 +244,7 @@ router.post("/baycurs", IsLoggedIn, async (req, res, next) => {
     if (user.price >= curs.narxi) {
       user.price = Number(user.price) - Number(curs.narxi);
       teacher.hisob = Number(teacher.hisob) + Number(curs.narxi) * 0.8;
-      curs.profit=Number(curs.profit)+Number(curs.narxi)*0.8
+      curs.profit = Number(curs.profit) + Number(curs.narxi) * 0.8
       admin.hisobi = Number(admin.hisobi) + Number(curs.narxi) * 0.2;
       curs.subs.push(req.user.userId);
       user.mycurs.push({
@@ -265,7 +265,7 @@ router.post("/baycurs", IsLoggedIn, async (req, res, next) => {
 
     next();
   } catch (error) {
-    res.send(error+"xatolik");
+    res.send(error + "xatolik");
   }
 });
 router.post("/users/savecurs", IsLoggedIn, async (req, res) => {
