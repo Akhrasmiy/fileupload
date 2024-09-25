@@ -442,12 +442,14 @@ router.get("/whoisownerbycard/:cardNumber", async (req, res, next) => {
 router.post("/cridettotecher", IsTeacherIn, async (req, res, next) => {
   try {
     const oldTeacher = await Teacher.findById(req.teacher.teacherId)
-    if(oldTeacher.hisob<req.body.amount){
+    if (oldTeacher.hisob < req.body.amount) {
       return res.status(400).send("hisobda yitarli pul mavjud emas");
     }
 
     const data = {
-      "extraId": `test-extraId=${randomUUID()}`
+      "extraId": `test-extraId=${randomUUID()}`,
+      "transactionData": "pay the teacher"
+
     }
 
     const username = 'ilmlarcom';
@@ -458,11 +460,15 @@ router.post("/cridettotecher", IsTeacherIn, async (req, res, next) => {
       { ...data, ...req.body },
       { headers: { Authorization: `Basic ${authString}` } });
 
-    if(response.status==200){
-      oldTeacher.hisob=oldTeacher.hisob-req.body.amount
+    if (response.status == 200) {
+      oldTeacher.hisob = oldTeacher.hisob - req.body.amount
       await oldTeacher.save()
+      return res.status(201).send({ data: oldTeacher });
+
     }
-    res.send({ data: oldTeacher });
+    else {
+      return response.data
+    }
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: error });
