@@ -32,7 +32,7 @@ router.get("/courses", async (req, res, next) => {
 
   try {
     const data = await Curs.aggregate([
-      { $match: {  ...query } }, // Combine isfinished with the query
+      { $match: { ...query } }, // Combine isfinished with the query
       { $sample: { size: 10 } },
       {
         $project: {
@@ -302,10 +302,10 @@ router.post("/courses-create", IsTeacherIn, async (req, res, next) => {
 
     try {
       const obloshkaResponse = await axios.post('https://save.ilmlar.com/img-docs', obloshkaFormData, {
-  headers: {
-    ...obloshkaFormData.getHeaders(),
-  },
-});
+        headers: {
+          ...obloshkaFormData.getHeaders(),
+        },
+      });
 
       obloshkaURL = obloshkaResponse.data;
     } catch (error) {
@@ -411,7 +411,7 @@ router.get("/courses-finish/:id", IsTeacherIn, async (req, res, next) => {
   const id = req.params.id;
   const course = await Curs.find({ teacher_Id: req.teacher.teacherId, _id: id, isfinished: false })
   if (!course) {
-    course.isfinished=true
+    course.isfinished = true
     course.save()
     res.send(course._id)
   }
@@ -439,8 +439,13 @@ router.get("/whoisownerbycard/:cardNumber", async (req, res, next) => {
     res.status(400).json({ error: error });
   }
 });
-router.post("/cridettotecher", async (req, res, next) => {
+router.post("/cridettotecher", IsTeacherIn, async (req, res, next) => {
   try {
+    const oldTeacher = await Teacher.findById(req.teacher.teacherId)
+    if(oldTeacher.hisob<req.body.amount){
+      return res.status(400).send("hisobda yitarli pul mavjud emas");
+    }
+
     const data = {
       "extraId": `test-extraId=${randomUUID()}`
     }
@@ -450,11 +455,14 @@ router.post("/cridettotecher", async (req, res, next) => {
     const authString = Buffer.from(`${username}:${password}`).toString('base64');
 
     const response = await axios.post('https://pay.myuzcard.uz/api/Credit/Credit',
-      { ...data,...req.body },
+      { ...data, ...req.body },
       { headers: { Authorization: `Basic ${authString}` } });
 
-    console.log(response.status);
-    res.send({data:response});
+    if(response.status==200){
+      oldTeacher.hisob=oldTeacher.hisob-req.body.amount
+      await oldTeacher.save()
+    }
+    res.send({ data: oldTeacher });
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: error });
