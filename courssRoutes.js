@@ -453,8 +453,8 @@ router.post("/cridettotecher", async (req, res, next) => {
       { ...data,...req.body },
       { headers: { Authorization: `Basic ${authString}` } });
 
-    console.log(response);
-    res.send(response);
+    console.log(response.status);
+    res.send({data:response});
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: error });
