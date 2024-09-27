@@ -441,15 +441,8 @@ router.get("/whoisownerbycard/:cardNumber", async (req, res, next) => {
 });
 router.post("/cridettotecher", IsTeacherIn, async (req, res, next) => {
   try {
-    const oldTeacher = await Teacher.findById(req.teacher.teacherId)
-    if (oldTeacher.hisob < req.body.amount) {
-      return res.status(400).send("hisobda yitarli pul mavjud emas");
-    }
-
     const data = {
-      "extraId": `test-extraId=${randomUUID()}`,
-      "transactionData": "pay the teacher"
-
+      "extraId": `test-extraId=${randomUUID()}`
     }
 
     const username = 'ilmlarcom';
@@ -457,18 +450,13 @@ router.post("/cridettotecher", IsTeacherIn, async (req, res, next) => {
     const authString = Buffer.from(`${username}:${password}`).toString('base64');
 
     const response = await axios.post('https://pay.myuzcard.uz/api/Credit/Credit',
-      { ...data, ...req.body },
+      { ...data,...req.body },
       { headers: { Authorization: `Basic ${authString}` } });
 
-    if (response.status == 200) {
-      oldTeacher.hisob = oldTeacher.hisob - req.body.amount
-      await oldTeacher.save()
-      return res.status(201).send({ data: oldTeacher });
-
-    }
-    else {
-      return response.data
-    }
+    console.log(response);
+    res.send(response);
+    console.log(response.status);
+    res.send({data:response});
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: error });
