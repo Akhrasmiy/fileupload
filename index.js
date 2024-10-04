@@ -16,7 +16,11 @@ mongoose.connect('mongodb://127.0.0.1:27017/project', {
   useUnifiedTopology: true,
 });
 app.use(express.urlencoded({limit:"100000mb", extended: true }))
-
+app.use(fileUpload({
+  limits: { fileSize: 2 * 1024 * 1024 * 1024 }, // 2GB limit for file size
+  useTempFiles: true,
+  tempFileDir: '/tmp/', // Temp directory to store large files
+}));
 
 // app.use(cors())
 app.use(userRout);
