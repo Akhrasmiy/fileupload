@@ -384,6 +384,7 @@ router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
   formData.append('video', file.data, file.name);
 
   try {
+    console.log("send data to save")
     const response = await axios.post('https://save.ilmlar.com/file', formData, {
       headers: formData.getHeaders(),
     });
