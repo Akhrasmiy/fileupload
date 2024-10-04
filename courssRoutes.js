@@ -378,7 +378,7 @@ router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
   if (!course || course.teacher_Id !== req.teacher.teacherId || course.isfinished) {
     return res.status(400).send("error");
   }
-
+  console.log("incoming data")
   let file = req.files.videofile;
   const formData = new FormData();
   formData.append('video', file.data, file.name);
