@@ -372,13 +372,14 @@ router.post("/courses-create", IsTeacherIn, async (req, res, next) => {
 
 
 router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
+  console.log("incoming data")
+
   const id = req.params.id;
   const { videoName, videoDesc, isOpen } = req.body;
   const course = await Curs.findById(id);
   if (!course || course.teacher_Id !== req.teacher.teacherId || course.isfinished) {
     return res.status(400).send("error");
   }
-  console.log("incoming data")
   let file = req.files.videofile;
   const formData = new FormData();
   formData.append('video', file.data, file.name);
