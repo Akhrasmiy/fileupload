@@ -388,7 +388,7 @@ router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
     console.log("send data to save")
     const response = await axios.post('https://save.ilmlar.com/file', formData, {
       headers: formData.getHeaders(),
-      timeout: 300000,
+      timeout: 900000,
     });
 
     const uuid = response.data;
