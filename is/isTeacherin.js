@@ -16,11 +16,9 @@ const IsTeacherIn = async(req, res, next) => {
         const token = req.headers.authorization;
         const payload = jwt.verify(token, process.env.ADMIN_hash)
         req.teacher = { teacherId: payload.teacherId };
-        console.log(payload)
         const teacher = await Teacher.findById(payload.teacherId);
         if (teacher) {
             req.teacher = { teacherId: payload.teacherId };
-            console.log(payload)
             next()
         }
         else{
