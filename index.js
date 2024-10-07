@@ -17,9 +17,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/project', {
 });
 app.use(express.json({ limit: '2gb' }));
 app.use(express.urlencoded({ limit: '2gb', extended: true }));
-app.use(fileUpload({
-  limits: { fileSize: 2 * 1024 * 1024 * 1024 } // 2GB limit
-}));
+// app.use(fileUpload({
+//   limits: { fileSize: 2 * 1024 * 1024 * 1024 } // 2GB limit
+// }));
 // app.use(cors())
 app.use(userRout);
 app.use(fileRout);
