@@ -32,4 +32,4 @@ app.use(cursRout);
 
 
 const server = app.listen(5001, () => console.log('Server is running on port 5001'));
-server.timeout = 1500000;
+server.timeout = 3000000;
