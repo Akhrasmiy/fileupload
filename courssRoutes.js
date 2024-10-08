@@ -390,6 +390,7 @@ router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
       headers: formData.getHeaders(),
       timeout: 1500000,
     });
+    console.log("response come from save")
 
     const uuid = response.data;
     course.vedios.push({
