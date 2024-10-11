@@ -408,7 +408,15 @@ router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
   }
 });
 
+router.post("/courseslength/:id", IsTeacherIn, async (req, res, next) => {
 
+  const course = await Curs.findById(id);
+  try {
+    res.send(course.vedios.length);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
 
 router.get("/courses-finish/:id", IsTeacherIn, async (req, res, next) => {
   const id = req.params.id;
