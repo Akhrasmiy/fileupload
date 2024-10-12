@@ -416,6 +416,7 @@ router.post("/courseslength/:id", IsTeacherIn, async (req, res, next) => {
     }
     res.send({ length: course.videos.length });
   } catch (error) {
+    console.log(error)
     res.status(500).send({ error: "An error occurred", details: error });
   }
 });
