@@ -414,7 +414,7 @@ router.post("/courseslength/:id", IsTeacherIn, async (req, res, next) => {
     if (!course) {
       return res.status(404).send({ message: "Course not found" });
     }
-    res.send({ length: course.videos?.length });
+    res.send({ length: course.vedios?.length });
   } catch (error) {
     console.log(error)
     res.status(500).send({ error: "An error occurred", details: error });
