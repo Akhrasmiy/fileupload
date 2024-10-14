@@ -409,12 +409,15 @@ router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
 });
 
 router.post("/courseslength/:id", IsTeacherIn, async (req, res, next) => {
-
-  const course = await Curs.findById(id);
   try {
-    res.send(course.vedios.length);
+    const course = await Curs.findById(req.params.id);
+    if (!course) {
+      return res.status(404).send({ message: "Course not found" });
+    }
+    res.send({ length: course.vedios?.length });
   } catch (error) {
-    res.status(500).send(error);
+    console.log(error)
+    res.status(500).send({ error: "An error occurred", details: error });
   }
 });
 
