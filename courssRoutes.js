@@ -368,11 +368,7 @@ router.post("/courses-create", IsTeacherIn, async (req, res, next) => {
 
 
 
-
-
-
 router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
-  console.log("incoming data")
 
   const id = req.params.id;
   const { videoName, videoDesc, isOpen } = req.body;
@@ -381,6 +377,15 @@ router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
     return res.status(400).send("error");
   }
   let file = req.files.videofile;
+  let document = req.files?.document;
+
+  const formData2 = new FormData();
+  formData2.append('file', document.data, document.name);
+  const response2 = await axios.post('https://save.ilmlar.com/pdf-docs', formData2, {
+    headers: formData.getHeaders(),
+    timeout: 1500000,
+  });
+
   const formData = new FormData();
   formData.append('video', file.data, file.name);
 
@@ -395,6 +400,7 @@ router.post("/courses-divid/:id", IsTeacherIn, async (req, res, next) => {
     const uuid = response.data;
     course.vedios.push({
       nomi: videoName,
+      document:response2.data,
       desc: videoDesc,
       orni: `https://save.ilmlar.com/video?uuid=${uuid}`,
       isOpen: isOpen,

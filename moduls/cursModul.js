@@ -23,6 +23,7 @@ const cursschema = new mongoose.Schema(
         orni: String,
         nomi: String,
         desc: String,
+        document:{ type: String, default: null },
         isOpen: { type: Boolean, default: false },
       },
     ],
