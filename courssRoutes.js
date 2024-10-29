@@ -491,5 +491,69 @@ router.post("/cridettotecher", IsTeacherIn, async (req, res, next) => {
     res.status(400).json({ error: error });
   }
 });
+router.post("/cridettotecher", IsTeacherIn, async (req, res, next) => {
+  try {
+    const oldTeacher = await Teacher.findById(req.teacher.teacherId)
+    if (oldTeacher.hisob < req.body.amount) {
+      return res.status(400).send("hisobda yitarli pul mavjud emas");
+    }
+
+    const data = {
+      "extraId": `test-extraId=${randomUUID()}`,
+      "transactionData": "pay the teacher"
+
+    }
+
+    const username = 'ilmlarcom';
+    const password = 'dEpSPx^LWnK79VhC(EKh-A]*P';
+    const authString = Buffer.from(`${username}:${password}`).toString('base64');
+
+    const response = await axios.post('https://pay.myuzcard.uz/api/Credit/Credit',
+      { ...data, ...req.body },
+      { headers: { Authorization: `Basic ${authString}` } });
+
+    if (response.status == 200) {
+      oldTeacher.hisob = oldTeacher.hisob - req.body.amount
+      await oldTeacher.save()
+      return res.status(201).send({ data: oldTeacher });
+
+    }
+    else {
+      return response.data
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error });
+  }
+});
+
+//test
+router.get("/asyncawait", IsTeacherIn, async (req, res, next) => {
+  try {
+  
+
+    const username = 'ilmlarcom';
+    const password = 'dEpSPx^LWnK79VhC(EKh-A]*P';
+    const authString = Buffer.from(`${username}:${password}`).toString('base64');
+
+    const response = await axios.post('https://pay.myuzcard.uz/api/Credit/GetCreditTransactions',
+      {},
+      { headers: { Authorization: `Basic ${authString}` } });
+      console.log(response)
+    if (response.status == 200) {
+      oldTeacher.hisob = oldTeacher.hisob - req.body.amount
+      await oldTeacher.save()
+      return res.status(201).send({ data: oldTeacher });
+
+    }
+    else {
+      return response.data
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error });
+  }
+});
+
 
 module.exports = router;
