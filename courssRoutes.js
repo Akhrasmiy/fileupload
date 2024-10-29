@@ -494,7 +494,7 @@ router.post("/cridettotecher", IsTeacherIn, async (req, res, next) => {
 
 
 //test
-router.get("/asyncawait", IsTeacherIn, async (req, res, next) => {
+router.get("/asyncawait", async (req, res, next) => {
   try {
   
 
