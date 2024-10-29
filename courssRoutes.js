@@ -505,16 +505,11 @@ router.get("/asyncawait", async (req, res, next) => {
     const response = await axios.post('https://pay.myuzcard.uz/api/Credit/GetCreditTransactions',
       {},
       { headers: { Authorization: `Basic ${authString}` } });
-      console.log(response)
-    if (response.status == 200) {
-      oldTeacher.hisob = oldTeacher.hisob - req.body.amount
-      await oldTeacher.save()
-      return res.status(201).send({ data: oldTeacher });
+      console.log(response.data.result)
+   
+      return res.status(201).send({ data: response.data.result });
 
-    }
-    else {
-      return response.data
-    }
+   
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: error });
